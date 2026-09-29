@@ -1,0 +1,61 @@
+.intro { padding:42px 0 32px; display:flex; align-items:end; justify-content:space-between; }
+.intro h1 { margin:16px 0 17px; }
+.intro p { color:var(--muted); font-size:14px; line-height:1.75; }
+.intro-note { display:flex; gap:20px; align-items:center; margin-right:380px; margin-bottom:5px; font:italic 17px/1.4 Georgia,serif; color:#8e9981; transform:rotate(-9deg); }
+.hand-arrow { font:50px Georgia,serif; transform:rotate(10deg); }
+.play-layout { display:grid; grid-template-columns:minmax(0,1fr) 338px; gap:26px; align-items:stretch; }
+.arena-card { height:600px; position:relative; min-height:534px; border:1px solid #dee5d5; border-radius:20px; overflow:hidden; background:#e8efdf; display:flex; flex-direction:column; }
+.arena-top { display:flex; justify-content:space-between; align-items:center; padding:22px 24px 0; z-index:1; }
+.pill { border:1px solid #cfdcc6; background:#f8fbefcc; border-radius:20px; padding:8px 12px; font-size:9px; letter-spacing:1.4px; font-weight:700; display:flex; align-items:center; gap:7px; }
+.live-dot,.small-dot { width:5px; height:5px; background:#6b9565; border-radius:50%; display:inline-block; }
+.arena-type { font-size:8px; letter-spacing:1.2px; color:#83917a; }
+#preview { width:100%; height:0; flex:1; min-height:300px; object-fit:contain; display:block; margin-top:-10px; }
+.arena-bottom { display:flex; align-items:center; justify-content:space-between; padding:0 26px 25px; gap:10px; }
+.map-label { font-size:8px; letter-spacing:1.6px; color:#8a967e; }
+.arena-bottom h2 { font-size:20px; letter-spacing:-.5px; margin-top:7px; }
+.arena-bottom h2 span { color:#a8b794; margin-left:7px; }
+.map-badge { font-size:8px; letter-spacing:1px; font-weight:650; color:#78856c; white-space:nowrap; border:1px solid #cfdbc3; padding:9px 10px; border-radius:6px; }
+.map-badge span { margin:0 4px; }
+.setup-card { padding:23px; background:#fffef8; border:1px solid var(--line); border-radius:20px; box-shadow:0 6px 15px #31463203; }
+.section-heading { display:flex; align-items:center; gap:9px; }
+.step { font-size:9px; color:#8f9a83; background:#edf1e5; width:23px; height:23px; display:grid; place-items:center; border-radius:50%; }
+.section-heading h2 { font-size:13px; letter-spacing:-.2px; }
+.hero-preview { height:115px; position:relative; margin-top:8px; }
+#portrait { width:180px; height:120px; display:block; margin:auto; position:relative; z-index:1; }
+.hero-spark { position:absolute; font-size:23px; color:#c0cba5; }
+.hero-spark.one { top:32px; left:60px; }.hero-spark.two { bottom:12px; right:57px; font-size:16px; }
+.hero-name { text-align:center; }
+.hero-name h3 { font-size:18px; letter-spacing:-.4px; }
+.hero-name p { font-size:10px; color:var(--muted); margin-top:4px; }
+.character-picker { display:flex; justify-content:center; gap:8px; margin:15px 0 20px; }
+.character-option { height:31px; width:31px; border-radius:50%; border:3px solid #fffef8; background:var(--swatch); outline:1px solid transparent; padding:0; position:relative; }
+.character-option[aria-pressed="true"] { outline:2px solid var(--green); }
+.character-option::after { content:'••'; color:#385047; font-size:12px; letter-spacing:2px; position:absolute; inset:4px 0 0 2px; }
+.character-option:hover { transform:translateY(-3px); }
+.field-label { display:block; color:#89907f; font-size:8px; letter-spacing:1.1px; font-weight:700; margin-bottom:8px; }
+.setup-divider { height:1px; background:var(--line); margin:19px 0 17px; }
+.setup-card .primary { width:100%; margin-top:15px; justify-content:space-between; }
+.join-row { display:flex; gap:8px; margin-top:11px; }
+.join-row input { min-width:0; letter-spacing:1.7px; font-size:10px; text-transform:uppercase; }
+.join-row .button { padding:12px 17px; }
+.practice-button { border:0; padding:0; background:none; display:block; width:100%; text-align:center; font-size:10px; color:#939989; margin:17px 0; }
+.practice-button strong { font-weight:650; color:#52775b; margin-left:3px; }
+.practice-button:hover strong { text-decoration:underline; }
+.bot-difficulty { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:17px; font-size:11px; color:#52775b; }
+.bot-difficulty select { font:inherit; color:#36503d; background:#fffdf6; border:1px solid var(--line); border-radius:8px; padding:7px 12px; }
+.bot-difficulty input[type="checkbox"] { width:18px; height:18px; padding:0; accent-color:#52775b; }
+.setup-note { font-size:9px; color:#9aa18f; text-align:center; }.setup-note .small-dot { margin-right:4px; }
+.features { display:grid; grid-template-columns:repeat(3,1fr); gap:25px; padding:30px 0; }
+.features>div { display:flex; align-items:center; gap:14px; }
+.feature-icon { display:grid; place-items:center; width:43px; height:43px; flex-shrink:0; background:#eceee2; border-radius:13px; font-size:26px; color:#688366; }
+.features h3 { font-size:12px; font-weight:650; }.features p { font-size:10px; color:#8e9786; margin-top:6px; }
+footer { display:flex; justify-content:space-between; border-top:1px solid var(--line); padding:23px 0 28px; font-size:9px; color:#949b8b; }
+footer>span:first-child { font-size:8px; letter-spacing:1.3px; }
+.footer-flower { color:#9eaf85; margin-left:12px; font-size:15px; }
+.screen { max-width:1100px; margin:30px auto; padding:0 30px; }
+.room-card { margin:30px auto; max-width:760px; border:1px solid var(--line); border-radius:25px; background:#fffdf6; text-align:center; padding:50px 35px; }
+.room-card .eyebrow { justify-content:center; }.room-card h1 { font-size:44px; margin:20px 0; }.room-card>p { font-size:13px; color:var(--muted); line-height:1.6; }
+.room-code { background:#edf1e5; border:1px dashed #a9bb9c; padding:17px 30px; margin:25px auto; font-size:32px; letter-spacing:8px; font-weight:700; color:var(--green); }
+.room-code span { font-size:20px; letter-spacing:0; }.room-players { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:25px; }
+.room-player { padding:18px 8px; background:#f2f3ea; border-radius:14px; font-size:13px; }.room-player strong { display:block; margin-top:10px; overflow-wrap:anywhere; }.room-player small { font-size:9px; color:var(--muted); }.room-player .avatar-dot { width:38px; height:38px; margin:auto; border-radius:13px; display:grid; place-items:center; font-weight:bold; color:#385047; }
+.room-card .primary { margin:22px auto 0; min-width:240px; }

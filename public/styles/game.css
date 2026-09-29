@@ -1,0 +1,15 @@
+#game-screen { max-width:1440px; padding:18px 35px 30px; margin:auto; }
+.game-toolbar { display:flex; align-items:center; justify-content:space-between; color:var(--muted); font-size:10px; letter-spacing:1px; margin-bottom:15px; }
+.scoreboard { display:flex; gap:10px; justify-content:center; margin:8px 0 18px; flex-wrap:wrap; }
+.score-pill { display:flex; align-items:center; gap:8px; background:#fffdf6; border:1px solid var(--line); padding:9px 13px; border-radius:11px; font-size:12px; }
+.score-pill.mine { border-color:#6c9c77; }.score-pill.out { opacity:.45; }.score-pill i { width:14px; height:14px; border-radius:5px; }.score-pill strong { color:var(--green); font-size:16px; margin-left:9px; }.score-pill span { max-width:130px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.game-stage { position:relative; background:#e5eddf; border:1px solid #d5dfcb; border-radius:24px; overflow:hidden; box-shadow:0 10px 40px #304e3010; }
+#game { display:block; width:100%; aspect-ratio:1500/990; cursor:crosshair; outline-offset:-4px; }
+.round-corner { position:absolute; top:18px; left:22px; display:flex; align-items:center; gap:12px; pointer-events:none; font-size:10px; letter-spacing:1px; }.round-corner strong { font-size:18px; background:#fffdf2d9; padding:7px 12px; border-radius:9px; }
+.round-overlay { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none; font-size:46px; font-weight:800; letter-spacing:-2px; text-align:center; text-shadow:0 2px 0 #f7f7ec; color:#284f3d; }
+.round-overlay:not(:empty) { background:#f6f5e94d; backdrop-filter:blur(2px); }.round-overlay small { font-size:12px; font-weight:500; letter-spacing:1px; margin-top:12px; max-width:80%; }.round-overlay .count { font-size:100px; }
+.game-controls { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:22px; margin:22px 0; font-size:11px; color:#76826c; }.game-controls kbd { margin-right:7px; }.game-controls i { font-size:8px; font-style:normal; color:var(--green); margin-left:5px; }
+.kill-feed { position:absolute; bottom:18px; right:20px; pointer-events:none; font-size:11px; color:var(--ink); background:#fffdf5bd; padding:5px 10px; border-radius:7px; }.kill-feed:empty { display:none; }
+#result-actions .primary { margin:auto; min-width:260px; }
+
+.controller-status { max-width:1100px; margin:10px auto 0; padding:0 20px; text-align:center; font-size:11px; color:var(--green); line-height:1.6; }

@@ -1,0 +1,48 @@
+@media (min-width:1600px) { body .intro { padding-top:55px; } body .arena-card { min-height:570px; } }
+@media (max-width:1100px) {
+  body .site-header { padding:0 30px; }
+  body main { padding:0 30px; }
+  body .play-layout { grid-template-columns:minmax(0,1fr) 310px; gap:18px; }
+  body .intro-note { margin-right:310px; font-size:14px; }
+  body .map-badge { display:none; }
+  body .arena-type { display:none; }
+  body .features { gap:15px; }
+  body .features p { font-size:9px; }
+}
+@media (max-width:760px) {
+  body .site-header { height:78px; padding:0 20px; }
+  body .brand { font-size:19px; }
+  body .brand-mark { width:35px; height:35px; font-size:40px; }
+  body nav { gap:15px; }
+  body .build-tag { display:none; }
+  body .header-right { gap:0; }
+  body main { padding:0 20px; }
+  body .intro { padding:30px 0; }
+  body .intro-note { margin:0 10px 10px 0; font-size:13px; }
+  body h1 { font-size:43px; letter-spacing:-2px; }
+  body .play-layout { grid-template-columns:1fr; }
+  body .arena-card { height:auto; min-height:340px; }
+  body #preview { min-height:230px; }
+  body .arena-top { padding:18px 18px 0; }
+  body .arena-bottom { padding:0 20px 20px; }
+  body .map-badge { display:block; }
+  body .setup-card { padding:25px; }
+  body .features { grid-template-columns:1fr; padding:25px 0; gap:20px; }
+  body footer { gap:12px; flex-direction:column; }
+  body #game-screen { padding:15px 10px; }
+  body .game-controls { gap:15px; }
+  body .room-card { padding:35px 20px; }
+  body .room-card h1 { font-size:34px; }
+  body .room-players { grid-template-columns:repeat(2,1fr); }
+  body .round-overlay { font-size:28px; }
+}
+@media (max-width:420px) { body .intro-note { display:none; } body .map-badge { display:none; } body nav .nav-active { display:none; } }
+
+@media (min-width:761px) and (max-height:900px) {
+  body .site-header { height:78px; }
+  body .intro { padding:23px 0 22px; }
+  body .intro h1 { font-size:44px; margin:10px 0; }
+  body .intro p { font-size:12px; }
+  body .intro p br { display:none; }
+  body .intro-note { font-size:14px; }
+}
