@@ -10,7 +10,7 @@ import { KickImpacts } from './art/kick-impact.js';
 import { WaterSplashes } from './art/water-splash.js';
 import { heldWeaponCount } from '/shared/weapon-inventory.js';
 import { boomerang, ellipse, line } from './art/shapes.js';
-import { applyCamera, keepSpriteUpright } from './camera.js';
+import { applyCamera, keepSpriteUpright, updateCamera } from './camera.js';
 import { boomerangReady, CHARACTERS, RULES, WORLD } from '/shared/config.js';
 
 export class ArenaRenderer {
@@ -18,6 +18,7 @@ export class ArenaRenderer {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.preview = preview;
+    this.view = { zoom: 1 };
     if (!preview) {
       canvas.width = WORLD.width;
       canvas.height = WORLD.height;
@@ -40,14 +41,21 @@ export class ArenaRenderer {
 
   render(state, time, localId, aim, range = null) {
     const ctx = this.ctx;
+    if (!this.preview) {
+      if (state.phase !== 'playing') this.view.zoom = 1;
+      else updateCamera(this.view, state.projectiles, Math.max(0, time - (this.cameraTime ?? time)));
+      this.cameraTime = time;
+    }
     ctx.clearRect(0,0,this.canvas.width,this.canvas.height);
+    ctx.fillStyle = '#5297a1';
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     ctx.save();
     ctx.globalAlpha=1;
     if (this.preview) {
       const sx=1000/WORLD.width, sy=660/WORLD.height;
       ctx.scale(sx,sy);
     }
-    applyCamera(ctx);
+    applyCamera(ctx, this.view);
     ctx.drawImage(this.background,0,0);
     drawAllCover(ctx,state.brokenObstacles);
     if (this.preview) {

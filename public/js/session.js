@@ -12,6 +12,7 @@ export class GameSession {
     this.audio=audio;
     this.renderer=new ArenaRenderer($('game'));
     this.input=new InputController($('game'));
+    this.input.view=this.renderer.view;
     this.state=null;
     this.mode=null;
     this.accumulator=0;

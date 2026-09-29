@@ -69,7 +69,8 @@ export class InputController {
     const box=this.canvas.getBoundingClientRect();
     const x=(event.clientX-box.left)/box.width*this.canvas.width;
     const y=(event.clientY-box.top)/box.height*this.canvas.height;
-    this.pointer=screenToWorld(x,y);
+    this.pointerScreen = { x, y };
+    this.pointer=screenToWorld(x,y,this.view);
   }
 
   reset() {
@@ -84,6 +85,7 @@ export class InputController {
   }
 
   read(player) {
+    if (this.pointerScreen) this.pointer = screenToWorld(this.pointerScreen.x, this.pointerScreen.y, this.view);
     if (!this.canAct() || !player?.alive) { this.reset(); return emptyInput(); }
     const pad=this.gamepad.read();
     if (pad?.activity) this.source='gamepad';

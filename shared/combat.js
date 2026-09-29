@@ -1,5 +1,5 @@
 import { RULES } from './config.js';
-import { clamp, collides, distance, outsideArena, segmentDistance } from './physics.js';
+import { clamp, collides, distance, hitsObstacle, segmentDistance } from './physics.js';
 import { parryWeapon, updateDropped } from './parry.js';
 import { returnAngle, throwAngle } from './throw-path.js';
 import { updateRecall } from './recall-physics.js';
@@ -35,15 +35,7 @@ function updateFlight(state, weapon, owner, dt) {
   weapon.y += Math.sin(weapon.angle) * travel;
   weapon.traveled += travel;
   if (distance(weapon, owner) > 48) weapon.departed = true;
-  if (outsideArena(weapon.x, weapon.y, 8)) {
-    weapon.x = previous.x;
-    weapon.y = previous.y;
-    weapon.returning = true;
-    weapon.loopReturn = false;
-    weapon.departed = true;
-    weapon.angle = Math.atan2(owner.y - weapon.y, owner.x - weapon.x);
-  }
-  if (weapon.returning && collides(weapon.x, weapon.y, 8, state.brokenObstacles)) {
+  if (weapon.returning && hitsObstacle(weapon.x, weapon.y, 8, state.brokenObstacles)) {
     weapon.x = weapon.safeX;
     weapon.y = weapon.safeY;
     weapon.mode = 'grounded';
@@ -52,7 +44,7 @@ function updateFlight(state, weapon, owner, dt) {
     weapon.returning = false;
     return true;
   }
-  if (!weapon.returning && collides(weapon.x, weapon.y, 8, state.brokenObstacles)) {
+  if (!weapon.returning && hitsObstacle(weapon.x, weapon.y, 8, state.brokenObstacles)) {
     weapon.x = previous.x;
     weapon.y = previous.y;
     weapon.returning = true;

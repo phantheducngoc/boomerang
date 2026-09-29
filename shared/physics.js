@@ -15,6 +15,10 @@ export function activeObstacles(broken = []) {
 
 export function collides(x, y, radius = WORLD.radius, broken = []) {
   if (outsideArena(x, y, radius)) return true;
+  return hitsObstacle(x, y, radius, broken);
+}
+
+export function hitsObstacle(x, y, radius = WORLD.radius, broken = []) {
   return activeObstacles(broken).some(box => {
     const dx = x - clamp(x, box.x, box.x + box.w);
     const dy = y - clamp(y, box.y, box.y + box.h);
