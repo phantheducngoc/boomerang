@@ -6,7 +6,7 @@ export const RULES = { speed: 210, dashSpeed: 660, dashTime: 0.16,
   deflectSpeed: 310, kickDeflectSpeed: 390, deflectDrag: 800, pickupRadius: 32,
   minRange: 180, maxRange: 630, chargeTime: 0.9, strikeRange: 78,
   strikeHalfAngle: Math.PI / 3, strikeCooldown: 0.65, strikeTime: 0.2,
-  dualStrikeWindow: 0.5,
+  dualStrikeWindow: 0.5, strikeLungeDistance: 45, strikeLungeTime: 0.09,
   roundTime: 60, boomerangDelay: 2, winScore: 5, maxPlayers: 6 };
 export const boomerangReady = state => !Number.isFinite(state?.remaining)
   || (state.phase === 'playing' && RULES.roundTime - state.remaining >= RULES.boomerangDelay);

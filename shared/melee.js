@@ -4,6 +4,7 @@ import { parryWeapon } from './parry.js';
 import { movePlayer } from './physics.js';
 import { disarmPlayer } from './disarm.js';
 import { hasHeldWeapon, heldWeaponCount } from './weapon-inventory.js';
+import { startStrikeMotion } from './strike-motion.js';
 
 export function strike(state, player, defer = false) {
   if (!player.alive || player.fallElapsed != null) return;
@@ -45,6 +46,7 @@ function beginStrike(state, player, combo, defer) {
     && heldWeaponCount(state, player) >= 2;
   player.strikeComboTime = player.strikeComboAvailable ? RULES.dualStrikeWindow : 0;
   player.strikeComboQueued = false;
+  startStrikeMotion(player);
   if (!defer) resolveStrike(state, player);
 }
 

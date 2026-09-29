@@ -66,8 +66,9 @@ export class ArenaRenderer {
     for (const player of sorted) {
       const previous = this.positions.get(player.id) || {x:player.x,y:player.y};
       const snap = Math.hypot(previous.x-player.x,previous.y-player.y)>150 || state.phase==='countdown';
-      previous.x += (player.x-previous.x)*(snap?1:.45);
-      previous.y += (player.y-previous.y)*(snap?1:.45);
+      const follow = snap || player.strikeLungeDistance > 0 ? 1 : .45;
+      previous.x += (player.x-previous.x)*follow;
+      previous.y += (player.y-previous.y)*follow;
       this.positions.set(player.id,previous);
       const display = {...player,x:previous.x,y:previous.y};
       const mine = player.id===localId;

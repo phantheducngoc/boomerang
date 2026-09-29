@@ -49,7 +49,6 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
   }
   ctx.translate(0, bob);
   if (swing) {
-    ctx.translate(Math.cos(facing) * swing.punch, Math.sin(facing) * swing.punch);
     ctx.rotate(Math.cos(facing) * swing.punch * 0.012);
   }
   ellipse(ctx, -12 + side * 3, 11 - side * 3, 7, 10, character.dark, side * 0.3 - 0.25);
