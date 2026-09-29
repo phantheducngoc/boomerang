@@ -81,6 +81,7 @@ export function drawGarden(ctx) {
 }
 
 export function drawCover(ctx, box, index) {
+  if (box.kind === 'tree') return;
   if (box.kind === 'crate') crates(ctx, box);
   else boulder(ctx, box);
 }

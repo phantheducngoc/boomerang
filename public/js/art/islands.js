@@ -1,5 +1,6 @@
 import { WORLD } from '/shared/config.js';
 import { SHORE } from '/shared/islands.js';
+import { TREES } from '/shared/trees.js';
 import { ellipse, line } from './shapes.js';
 
 function path(ctx, offsetX = 0, offsetY = 0) {
@@ -126,8 +127,7 @@ export function drawIslandArena(ctx) {
   ctx.fillRect(0, 0, WORLD.width, WORLD.height);
   waterDetails(ctx);
   drawIsland(ctx);
-  tree(ctx, 180, 240, 1.2);
-  tree(ctx, 1220, 170, 1.05);
+  for (const item of TREES) tree(ctx, item.x, item.y, item.scale);
   [[470, 130, 58], [520, 145, 48], [1050, 780, 55], [1120, 760, 46], [700, 900, 50]].forEach(
     ([x, y, height]) => bamboo(ctx, x, y, height));
 }

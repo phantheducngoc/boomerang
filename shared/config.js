@@ -1,3 +1,5 @@
+import { TREE_OBSTACLES } from './trees.js';
+
 export const WORLD = { width: 1500, height: 990, radius: 20 };
 export const RULES = { speed: 210, dashSpeed: 660, dashTime: 0.16,
   dashCooldown: 0.5, projectileSpeed: 510, returnAfter: 0.48,
@@ -24,7 +26,8 @@ export const OBSTACLES = [
   { x: 455, y: 285, w: 90, h: 90, kind: 'crate' },
   { x: 1120, y: 730, w: 105, h: 60 }, { x: 800, y: 720, w: 105, h: 60 },
   { x: 1200, y: 500, w: 75, h: 78, kind: 'crate' }, { x: 980, y: 250, w: 75, h: 78 },
-  { x: 1040, y: 560, w: 90, h: 90 }
+  { x: 1040, y: 560, w: 90, h: 90 },
+  ...TREE_OBSTACLES
 ];
 export const SPAWNS = [
   [180, 170], [1320, 820], [1320, 170], [180, 820], [750, 155], [750, 835]
