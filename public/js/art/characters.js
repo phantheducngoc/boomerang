@@ -8,6 +8,7 @@ import { keepSpriteUpright } from '../camera.js';
 export function drawCharacter(ctx, player, time = 0, options = {}) {
   const character = CHARACTERS.find(item => item.id === player.character) || CHARACTERS[0];
   const size = options.scale || 1;
+  const dual = Number(options.weapon) >= 2;
   const falling = player.fallElapsed != null;
   const swing = strikePose(player);
   const facing = falling ? Math.PI / 2 : swing ? player.strikeAim : options.facing ?? player.aim ?? player.facing ?? Math.PI / 2;
@@ -93,15 +94,25 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
     const handX = Math.cos(angle) * 37;
     const handY = Math.sin(angle) * 29 - 5;
     if (player.strikeKind !== 'kick') {
+      line(ctx, [[side * 16, -8], [handX, handY]], character.dark, 7);
       ellipse(ctx, handX, handY, 8, 9, character.color, angle);
       if (options.weapon) boomerang(ctx, handX, handY, angle + Math.PI / 2, 0.48);
     }
   } else {
-    const handX = Math.cos(facing) * 32;
-    const handY = Math.sin(facing) * 25 - 8;
+    const handAngle = facing + (dual ? 0.65 : 0);
+    const handX = Math.cos(handAngle) * 32;
+    const handY = Math.sin(handAngle) * 25 - 8;
     line(ctx, [[side * 18, -8], [handX, handY]], character.dark, 7);
     ellipse(ctx, handX, handY, 7, 8, character.color, facing);
     if (options.weapon) boomerang(ctx, handX, handY, facing + Math.PI / 2, 0.48);
+  }
+  if (dual) {
+    const angle = swing && player.strikeHand === 'left' ? facing + 0.65 : facing - 0.85;
+    const handX = Math.cos(angle) * 34;
+    const handY = Math.sin(angle) * 27 - 8;
+    line(ctx, [[side * 12, -9], [handX, handY]], character.dark, 7);
+    ellipse(ctx, handX, handY, 7, 8, character.color, angle);
+    boomerang(ctx, handX, handY, angle + Math.PI / 2, 0.48);
   }
   ctx.restore();
   if (options.label) {

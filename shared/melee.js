@@ -3,10 +3,36 @@ import { inStrikeArc } from './strike-geometry.js';
 import { parryWeapon } from './parry.js';
 import { movePlayer } from './physics.js';
 import { disarmPlayer } from './disarm.js';
-import { hasHeldWeapon } from './weapon-inventory.js';
+import { hasHeldWeapon, heldWeaponCount } from './weapon-inventory.js';
 
 export function strike(state, player, defer = false) {
-  if (!player.alive || player.fallElapsed != null || player.strikeCooldown > 0) return;
+  if (!player.alive || player.fallElapsed != null) return;
+  const canCombo = player.strikeComboAvailable && player.strikeComboTime > 0
+    && heldWeaponCount(state, player) >= 2;
+  if (player.strikeCooldown > 0 && !canCombo) return;
+  if (canCombo && player.strikeTime > 0) {
+    player.strikeComboQueued = true;
+    return;
+  }
+  beginStrike(state, player, canCombo, defer);
+}
+
+export function updateStrikeCombo(state, player, dt) {
+  player.strikeComboTime = Math.max(0, (player.strikeComboTime ?? 0) - dt);
+  if (player.strikeComboTime <= 0) {
+    player.strikeComboAvailable = false;
+    player.strikeComboQueued = false;
+  }
+  if (!player.strikeComboQueued || player.strikeTime > 0) return;
+  if (heldWeaponCount(state, player) < 2) {
+    player.strikeComboAvailable = false;
+    player.strikeComboQueued = false;
+    return;
+  }
+  beginStrike(state, player, true, true);
+}
+
+function beginStrike(state, player, combo, defer) {
   player.strikeCooldown = RULES.strikeCooldown;
   player.strikeTime = RULES.strikeTime;
   player.strikeAim = player.aim;
@@ -14,6 +40,11 @@ export function strike(state, player, defer = false) {
   player.clashedTargets = [];
   player.strikeKind = boomerangReady(state) && hasHeldWeapon(state, player)
     ? 'swing' : 'kick';
+  player.strikeHand = combo ? 'left' : 'right';
+  player.strikeComboAvailable = !combo && player.strikeKind === 'swing'
+    && heldWeaponCount(state, player) >= 2;
+  player.strikeComboTime = player.strikeComboAvailable ? RULES.dualStrikeWindow : 0;
+  player.strikeComboQueued = false;
   if (!defer) resolveStrike(state, player);
 }
 

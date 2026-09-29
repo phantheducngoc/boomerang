@@ -8,7 +8,7 @@ import { DashTrails } from './art/dash-trail.js';
 import { smoothFacing } from './art/turning.js';
 import { KickImpacts } from './art/kick-impact.js';
 import { WaterSplashes } from './art/water-splash.js';
-import { hasHeldWeapon } from '/shared/weapon-inventory.js';
+import { heldWeaponCount } from '/shared/weapon-inventory.js';
 import { boomerang, ellipse, line } from './art/shapes.js';
 import { applyCamera, keepSpriteUpright } from './camera.js';
 import { boomerangReady, CHARACTERS, RULES, WORLD } from '/shared/config.js';
@@ -89,7 +89,7 @@ export class ArenaRenderer {
         ctx.restore();
       }
       if (!player.fallen) {
-        drawCharacter(ctx,display,time,{mine,weapon:armed && hasHeldWeapon(state,player),
+        drawCharacter(ctx,display,time,{mine,weapon:armed ? heldWeaponCount(state,player) : 0,
           label:!this.preview,scale:this.preview?1.16:1,facing:previous.facing,camera:true});
       drawStrike(ctx,display,state.brokenObstacles);
       }

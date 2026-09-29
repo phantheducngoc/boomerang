@@ -5,9 +5,11 @@ export function strikePose(player) {
   if (!player.alive || !(player.strikeTime > 0)) return null;
   const progress = Math.max(0, Math.min(1, 1 - player.strikeTime / RULES.strikeTime));
   const sweep = 1 - (1 - progress) ** 3;
+  const direction = player.strikeHand === 'left' ? -1 : 1;
   return {
     progress,
-    angle: -RULES.strikeHalfAngle + sweep * RULES.strikeHalfAngle * 2,
+    direction,
+    angle: direction * (-RULES.strikeHalfAngle + sweep * RULES.strikeHalfAngle * 2),
     punch: Math.sin(Math.PI * progress) * 8,
     opacity: Math.min(1, (1 - progress) * 2)
   };
@@ -17,7 +19,9 @@ export function drawStrike(ctx, player, broken = []) {
   const pose = strikePose(player);
   if (!pose) return;
   const radius = RULES.strikeRange;
-  const tail = Math.max(-RULES.strikeHalfAngle, pose.angle - 1.25);
+  const tail = pose.direction > 0
+    ? Math.max(-RULES.strikeHalfAngle, pose.angle - 1.25)
+    : Math.min(RULES.strikeHalfAngle, pose.angle + 1.25);
   ctx.save();
   ctx.translate(player.x, player.y);
   ctx.rotate(player.strikeAim);
@@ -44,45 +48,31 @@ export function drawStrike(ctx, player, broken = []) {
     return;
   }
   ctx.lineCap = 'round';
+  const rangeFade = ctx.createRadialGradient(0, 0, 20, 0, 0, radius);
+  rangeFade.addColorStop(0, 'rgba(255,255,220,0)');
+  rangeFade.addColorStop(0.62, 'rgba(255,255,220,0.08)');
+  rangeFade.addColorStop(1, 'rgba(255,255,235,0.22)');
   ctx.beginPath();
   ctx.moveTo(0, 0);
   ctx.arc(0, 0, radius, -RULES.strikeHalfAngle, RULES.strikeHalfAngle);
   ctx.closePath();
-  const rangeFade = ctx.createRadialGradient(0, 0, 12, 0, 0, radius);
-  rangeFade.addColorStop(0, 'rgba(255,255,255,0)');
-  rangeFade.addColorStop(0.35, 'rgba(255,255,255,0.12)');
-  rangeFade.addColorStop(0.8, 'rgba(255,255,255,0.5)');
-  rangeFade.addColorStop(1, 'rgba(255,255,255,0.18)');
   ctx.globalAlpha = pose.opacity;
   ctx.fillStyle = rangeFade;
   ctx.fill();
-  ctx.beginPath();
-  ctx.arc(0, 0, radius, -RULES.strikeHalfAngle, RULES.strikeHalfAngle);
-  ctx.globalAlpha = pose.opacity * 0.8;
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 3;
-  ctx.stroke();
-  // The white fan fades toward the character and behind the moving edge.
-  const segments = 16;
+  // Layer tapered arc segments into the broad glowing crescent of the weapon swing.
+  const segments = 18;
+  ctx.shadowColor = 'rgba(255,255,205,0.9)';
+  ctx.shadowBlur = 12;
   for (let i = 0; i < segments; i++) {
     const start = tail + (pose.angle - tail) * i / segments;
     const end = tail + (pose.angle - tail) * (i + 1) / segments;
+    const position = (i + 0.5) / segments;
+    const taper = Math.sin(Math.PI * position) ** 0.55;
     ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.arc(0, 0, radius, start, end);
-    ctx.closePath();
-    ctx.fillStyle = rangeFade;
-    ctx.globalAlpha = pose.opacity * (i + 1) / segments;
-    ctx.fill();
-  }
-  ctx.shadowColor = 'rgba(255,255,255,0.7)';
-  ctx.shadowBlur = 7;
-  for (const [width, alpha] of [[16, 0.2], [8, 0.6], [3, 1]]) {
-    ctx.beginPath();
-    ctx.arc(0, 0, radius, tail, pose.angle);
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = width;
-    ctx.globalAlpha = pose.opacity * alpha;
+    ctx.arc(0, 0, radius - 8 + position * 7, start, end, pose.direction < 0);
+    ctx.strokeStyle = position > 0.72 ? '#fffef0' : '#fffbc2';
+    ctx.lineWidth = 5 + taper * 25;
+    ctx.globalAlpha = pose.opacity * (0.35 + position * 0.65);
     ctx.stroke();
   }
   ctx.globalAlpha = pose.opacity;

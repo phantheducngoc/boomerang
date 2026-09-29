@@ -1,6 +1,6 @@
 import { boomerangReady, emptyInput, RULES, SPAWNS } from './config.js';
 import { recallWeapon, retrieveWeapon } from './retrieval.js';
-import { resolveClashes, resolveStrike, strike } from './melee.js';
+import { resolveClashes, resolveStrike, strike, updateStrikeCombo } from './melee.js';
 import { movePlayer } from './physics.js';
 import { throwWeapon, updateWeapons } from './combat.js';
 import { bumpPlayers, updateRecoil } from './recoil.js';
@@ -8,7 +8,9 @@ import { resolveFalls } from './falls.js';
 
 export function createPlayer(id, name, character, bot = false) {
   return { id, name, character, bot, weaponCount: 1, x: 0, y: 0, aim: 0, facing: Math.PI / 2, alive: true,
-    strikeCooldown: 0, strikeTime: 0, strikeAim: 0, score: 0, dashTime: 0, dashCooldown: 0, dashX: 0, dashY: 0, input: emptyInput() };
+    strikeCooldown: 0, strikeTime: 0, strikeAim: 0, strikeHand: 'right',
+    strikeComboTime: 0, strikeComboAvailable: false, strikeComboQueued: false,
+    score: 0, dashTime: 0, dashCooldown: 0, dashX: 0, dashY: 0, input: emptyInput() };
 }
 
 export function createGame(players) {
@@ -42,6 +44,10 @@ function beginRound(state) {
     player.dashCooldown = 0;
     player.strikeCooldown = 0;
     player.strikeTime = 0;
+    player.strikeHand = 'right';
+    player.strikeComboTime = 0;
+    player.strikeComboAvailable = false;
+    player.strikeComboQueued = false;
     player.input = emptyInput();
   });
 }
@@ -65,6 +71,7 @@ export function stepGame(state, dt) {
     if (!player.alive || player.fallElapsed != null) continue;
     player.strikeCooldown = Math.max(0, player.strikeCooldown - dt);
     player.strikeTime = Math.max(0, player.strikeTime - dt);
+    updateStrikeCombo(state, player, dt);
     const input = player.input;
     player.aim = input.aim;
     const charging = input.charging && !input.dash && !input.throw;
