@@ -6,6 +6,7 @@ export function hitPlayers(state, weapon, owner, previous) {
     if (target.id === owner.id || !target.alive || target.invincible || target.dashTime > 0) continue;
     if (segmentDistance(target, previous, weapon) >= 26) continue;
     target.alive = false;
+    if (target.fallElapsed != null) { target.fallen = true; target.fallElapsed = null; }
     state.events.push({ id: ++state.sequence, x: target.x, y: target.y,
       color: target.character, text: `${owner.name} tagged ${target.name}` });
   }

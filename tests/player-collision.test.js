@@ -12,6 +12,23 @@ function pair() {
   return players;
 }
 
+test('dash contact pushes the opponent even after a recent walking bump',()=> {
+  const state=createGame(pair());
+  const [jumper,target]=state.players;
+  Object.assign(jumper,{x:500,y:120,bumpCooldown:0.2});
+  Object.assign(target,{x:560,y:120,bumpCooldown:0.2});
+  state.phase='playing'; state.remaining=55;
+  Object.assign(jumper.input,{x:1,dash:true});
+  stepGame(state,1/30);
+  assert.ok(target.x>560);
+  assert.ok(target.recoilX>0);
+  assert.ok(jumper.recoilX<0);
+  assert.ok(target.recoilX>Math.abs(jumper.recoilX));
+  assert.equal(jumper.dashTime,0);
+  assert.ok(distance(jumper,target)>=WORLD.radius*2);
+  assert.equal(target.alive,true);
+});
+
 test('body contact recoils both players, fades out, and cannot stack each substep',()=> {
   const players=pair();
   players[0].x=520;

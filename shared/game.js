@@ -29,6 +29,9 @@ function beginRound(state) {
     [player.x, player.y] = SPAWNS[index];
     player.alive = true;
     player.fallen = false;
+    player.fallElapsed = null;
+    player.fallStartX = null;
+    player.fallStartY = null;
     player.pickupCharges = 0;
     player.weaponCount = 1;
     player.recoilX = 0;
@@ -59,7 +62,7 @@ export function stepGame(state, dt) {
     return;
   }
   for (const player of state.players) {
-    if (!player.alive) continue;
+    if (!player.alive || player.fallElapsed != null) continue;
     player.strikeCooldown = Math.max(0, player.strikeCooldown - dt);
     player.strikeTime = Math.max(0, player.strikeTime - dt);
     const input = player.input;
@@ -98,7 +101,7 @@ export function stepGame(state, dt) {
   resolveClashes(state);
   for (const player of state.players) resolveStrike(state, player);
   updateWeapons(state, dt);
-  resolveFalls(state);
+  resolveFalls(state, dt);
   const survivors = state.players.filter(player => player.alive);
   if (survivors.length <= 1 || state.remaining <= 0) {
     const winner = survivors.length === 1 ? survivors[0] : null;

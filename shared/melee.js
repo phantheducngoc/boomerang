@@ -6,7 +6,7 @@ import { disarmPlayer } from './disarm.js';
 import { hasHeldWeapon } from './weapon-inventory.js';
 
 export function strike(state, player, defer = false) {
-  if (!player.alive || player.strikeCooldown > 0) return;
+  if (!player.alive || player.fallElapsed != null || player.strikeCooldown > 0) return;
   player.strikeCooldown = RULES.strikeCooldown;
   player.strikeTime = RULES.strikeTime;
   player.strikeAim = player.aim;
@@ -18,7 +18,7 @@ export function strike(state, player, defer = false) {
 }
 
 export function resolveStrike(state, player) {
-  if (!player.alive || player.strikeTime <= 0) return;
+  if (!player.alive || player.fallElapsed != null || player.strikeTime <= 0) return;
   if (player.strikeKind === 'swing') breakCrates(state, player);
   for (const weapon of state.projectiles) parryWeapon(state, weapon, player);
   for (const target of state.players) {
@@ -37,6 +37,7 @@ export function resolveStrike(state, player) {
       continue;
     }
     target.alive = false;
+    if (target.fallElapsed != null) { target.fallen = true; target.fallElapsed = null; }
     state.events.push({ id: ++state.sequence, x: target.x, y: target.y,
       color: target.character, text: `${player.name} struck ${target.name}` });
   }

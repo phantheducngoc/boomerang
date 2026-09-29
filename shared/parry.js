@@ -3,7 +3,7 @@ import { collides } from './physics.js';
 import { inStrikeArc } from './strike-geometry.js';
 
 export function parryWeapon(state, weapon, player, previous = weapon) {
-  if (!player.alive || player.strikeTime <= 0 || weapon.owner === player.id ||
+  if (!player.alive || player.fallElapsed != null || player.strikeTime <= 0 || weapon.owner === player.id ||
       weapon.mode !== 'flying'
       || !inStrikeArc(player, weapon, player.strikeAim, 0, state.brokenObstacles)) return false;
   const dx = previous.x - player.x;

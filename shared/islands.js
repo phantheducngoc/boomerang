@@ -32,3 +32,21 @@ export function offIsland(x, y, radius = 0) {
   return SHORE.some((point, index) =>
     segmentDistance(x, y, point, SHORE[(index + 1) % SHORE.length]) < radius);
 }
+
+export function outwardDirection(x, y) {
+  let closest = null;
+  let best = Infinity;
+  for (let i = 0; i < SHORE.length; i++) {
+    const a = SHORE[i], b = SHORE[(i + 1) % SHORE.length];
+    const dx = b[0] - a[0], dy = b[1] - a[1];
+    const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / (dx * dx + dy * dy)));
+    const offsetX = x - a[0] - t * dx, offsetY = y - a[1] - t * dy;
+    const length = Math.hypot(offsetX, offsetY);
+    if (length < best) {
+      best = length;
+      closest = length > 1e-6 ? { x: offsetX / length, y: offsetY / length }
+        : { x: dy / Math.hypot(dx, dy), y: -dx / Math.hypot(dx, dy) };
+    }
+  }
+  return closest;
+}

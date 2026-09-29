@@ -8,8 +8,9 @@ import { keepSpriteUpright } from '../camera.js';
 export function drawCharacter(ctx, player, time = 0, options = {}) {
   const character = CHARACTERS.find(item => item.id === player.character) || CHARACTERS[0];
   const size = options.scale || 1;
+  const falling = player.fallElapsed != null;
   const swing = strikePose(player);
-  const facing = swing ? player.strikeAim : options.facing ?? player.aim ?? player.facing ?? Math.PI / 2;
+  const facing = falling ? Math.PI / 2 : swing ? player.strikeAim : options.facing ?? player.aim ?? player.facing ?? Math.PI / 2;
   const side = Math.cos(facing);
   const depth = Math.sin(facing);
   const front = frontVisibility(facing);
@@ -18,6 +19,17 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
   ctx.translate(player.x, player.y);
   if (options.camera) keepSpriteUpright(ctx);
   ctx.scale(size, size);
+  if (falling) {
+    const drop = Math.max(0, Math.min(1, (player.fallElapsed - 0.5) / 0.2));
+    ctx.translate(Math.sin(time * 55) * 2 * (1 - drop), drop * drop * 42);
+    ctx.rotate((player.fallDriftX < 0 ? -1 : 1) * drop * 0.3);
+    ctx.scale(1 - drop * 0.85, 1 - drop * 0.85);
+    ctx.globalAlpha *= 1 - drop;
+    ctx.fillStyle = '#fff9dc';
+    ctx.font = 'bold 24px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('!', 0, -64);
+  }
   if (!player.alive) {
     ellipse(ctx, 0, 5, 20, 10, '#637c5420');
     ctx.globalAlpha = 0.3;
@@ -62,7 +74,8 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
     ellipse(ctx, -17,-10,5,2.7,'#e8897955');
     ellipse(ctx, 18,-10,5,2.7,'#e8897955');
     ctx.beginPath();
-    ctx.arc(1 + look,-11,4,0.2,Math.PI - 0.2);
+    if (falling) ctx.ellipse(1 + look, -9, 4, 6, 0, 0, Math.PI * 2);
+    else ctx.arc(1 + look,-11,4,0.2,Math.PI - 0.2);
     ctx.strokeStyle = '#36503d';
     ctx.lineWidth = 1.6;
     ctx.stroke();
