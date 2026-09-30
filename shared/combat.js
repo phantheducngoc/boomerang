@@ -5,6 +5,7 @@ import { returnAngle, throwAngle } from './throw-path.js';
 import { updateRecall } from './recall-physics.js';
 import { hitPlayers } from './projectile-hits.js';
 import { hasHeldWeapon } from './weapon-inventory.js';
+import { bounceOffObstacle } from './obstacle-bounce.js';
 
 export function throwWeapon(state, player, range = RULES.projectileSpeed * RULES.returnAfter) {
   if (!hasHeldWeapon(state, player)) return;
@@ -38,22 +39,10 @@ function updateFlight(state, weapon, owner, dt) {
   weapon.y += Math.sin(weapon.angle) * travel;
   weapon.traveled += travel;
   if (distance(weapon, owner) > 48) weapon.departed = true;
-  if (weapon.returning && hitsObstacle(weapon.x, weapon.y, 8, state.brokenObstacles)) {
+  if (hitsObstacle(weapon.x, weapon.y, 8, state.brokenObstacles)) {
     obstacleImpact(state, weapon);
-    weapon.x = weapon.safeX;
-    weapon.y = weapon.safeY;
-    weapon.mode = 'grounded';
-    weapon.sharedPickup = false;
-    weapon.speed = 0;
-    weapon.returning = false;
+    bounceOffObstacle(weapon, previous, state.brokenObstacles);
     return true;
-  }
-  if (!weapon.returning && hitsObstacle(weapon.x, weapon.y, 8, state.brokenObstacles)) {
-    obstacleImpact(state, weapon);
-    weapon.x = previous.x;
-    weapon.y = previous.y;
-    weapon.returning = true;
-    weapon.loopReturn = false;
   }
   if (!collides(weapon.x, weapon.y, 20, state.brokenObstacles)) {
     weapon.safeX = weapon.x; weapon.safeY = weapon.y;

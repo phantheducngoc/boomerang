@@ -1,6 +1,7 @@
 import { RULES, WORLD } from './config.js';
 import { collides } from './physics.js';
 import { inStrikeArc } from './strike-geometry.js';
+import { droppedHeight } from './obstacle-bounce.js';
 
 export function parryWeapon(state, weapon, player, previous = weapon) {
   if (!player.alive || player.fallElapsed != null || player.strikeTime <= 0 || weapon.owner === player.id ||
@@ -37,7 +38,7 @@ export function updateDropped(weapon, dt, broken = []) {
     if (!collides(x, y, 20, broken)) { weapon.x = x; weapon.y = y; weapon.speed = speed; }
     else weapon.speed = 0;
     weapon.fallTime += dt;
-    if (weapon.speed === 0) weapon.mode = 'grounded';
+    if (weapon.speed === 0 && (!weapon.obstacleDrop || droppedHeight(weapon) === 0)) weapon.mode = 'grounded';
   }
   // Pickup is an explicit player action handled by the retrieval service.
   return true;

@@ -1,3 +1,5 @@
+import { droppedHeight } from '/shared/obstacle-bounce.js';
+
 export class WeaponTrails {
   constructor() {
     this.paths = new Map();
@@ -10,7 +12,7 @@ export class WeaponTrails {
     for (const weapon of weapons) {
       if (weapon.mode === 'grounded') continue;
       const deflected = weapon.mode === 'deflected';
-      const height = deflected ? Math.max(0, 14 * (1 - weapon.fallTime / 0.4)) : 12;
+      const height = deflected ? droppedHeight(weapon) : 12;
       const path = this.paths.get(weapon.id) || { points: [], deflected };
       const last = path.points.at(-1);
       if (!last || Math.hypot(last.x - weapon.x, last.y - (weapon.y - height)) > 0.5) {

@@ -102,7 +102,7 @@ test('hit detection catches swept throws and dash grants invulnerability',()=> {
   assert.equal(state.phase,'roundOver');
 });
 
-test('outgoing throws turn around at cover',()=> {
+test('outgoing throws bounce and fall at cover',()=> {
   const state=playing();
   const player=state.players[0];
   player.x=240; player.y=220; player.aim=0;
@@ -112,7 +112,8 @@ test('outgoing throws turn around at cover',()=> {
   updateWeapons(state,1/30);
   assert.equal(state.projectiles.length,1);
   assert.ok(state.projectiles[0].x<270);
-  assert.ok(state.projectiles[0].returning || state.projectiles[0].mode==='grounded');
+  assert.equal(state.projectiles[0].mode, 'deflected');
+  assert.ok(Math.cos(state.projectiles[0].angle) < 0);
 });
 
 test('the garden is larger and every spawn has room to stand',()=> {

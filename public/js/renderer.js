@@ -2,6 +2,7 @@ import { drawGarden, drawAllCover } from './art/garden.js';
 import { drawCharacter } from './art/characters.js';
 import { drawStrike } from './art/strike.js';
 import { WeaponTrails } from './art/weapon-trail.js';
+import { droppedHeight } from '/shared/obstacle-bounce.js';
 import { drawWeaponWind } from './art/weapon-wind.js';
 import { drawAimArrow } from './art/aim-arrow.js';
 import { drawRecallRing } from './art/recall-ring.js';
@@ -120,7 +121,7 @@ export class ArenaRenderer {
     for (const weapon of armed ? state.projectiles : []) {
       const grounded=weapon.mode==='grounded';
       const deflected=weapon.mode==='deflected';
-      const height=deflected?Math.max(0,14*(1-weapon.fallTime/.4)):grounded?0:12;
+      const height=deflected?droppedHeight(weapon):grounded?0:12;
       ellipse(ctx,weapon.x,weapon.y+8,13,6,'#4f653126');
       drawRecallRing(ctx,weapon,time,height);
       ctx.save();
