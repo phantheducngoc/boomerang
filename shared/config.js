@@ -24,12 +24,12 @@ export const OBSTACLES = [
   { x: 270, y: 198, w: 105, h: 60 }, { x: 625, y: 402, w: 105, h: 60, kind: 'crate' },
   { x: 665, y: 177, w: 75, h: 78 }, { x: 260, y: 420, w: 75, h: 78 },
   { x: 455, y: 285, w: 90, h: 90, kind: 'crate' },
-  { x: 1120, y: 730, w: 105, h: 60 }, { x: 800, y: 720, w: 105, h: 60 },
-  { x: 1200, y: 500, w: 75, h: 78, kind: 'crate' }, { x: 980, y: 250, w: 75, h: 78 },
-  { x: 1040, y: 560, w: 90, h: 90 },
+  { x: 880, y: 560, w: 105, h: 60 }, { x: 500, y: 660, w: 105, h: 60 },
+  { x: 900, y: 360, w: 75, h: 78, kind: 'crate' }, { x: 820, y: 200, w: 75, h: 78 },
+  { x: 780, y: 470, w: 90, h: 90 },
   ...TREE_OBSTACLES
 ];
 export const SPAWNS = [
-  [180, 170], [1320, 820], [1320, 170], [180, 820], [750, 155], [750, 835]
+  [180, 170], [1000, 520], [760, 300], [480, 600], [750, 155], [640, 640]
 ];
 export const emptyInput = () => ({ x: 0, y: 0, aim: 0, throw: false, recall: false, charging: false, dash: false, strike: false, retrieve: false, range: RULES.minRange });

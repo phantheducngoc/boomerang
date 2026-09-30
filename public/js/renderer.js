@@ -10,7 +10,7 @@ import { KickImpacts } from './art/kick-impact.js';
 import { WaterSplashes } from './art/water-splash.js';
 import { heldWeaponCount } from '/shared/weapon-inventory.js';
 import { boomerang, ellipse, line } from './art/shapes.js';
-import { applyCamera, keepSpriteUpright, updateCamera } from './camera.js';
+import { applyCamera, keepSpriteUpright, updateCamera, WATER_BLEED } from './camera.js';
 import { boomerangReady, CHARACTERS, RULES, WORLD } from '/shared/config.js';
 
 export class ArenaRenderer {
@@ -31,9 +31,10 @@ export class ArenaRenderer {
     this.particles = [];
     this.lastEvent = 0;
     this.background = document.createElement('canvas');
-    this.background.width = WORLD.width;
-    this.background.height = WORLD.height;
+    this.background.width = WORLD.width + WATER_BLEED * 2;
+    this.background.height = WORLD.height + WATER_BLEED * 2;
     const bg = this.background.getContext('2d');
+    bg.translate(WATER_BLEED, WATER_BLEED);
     drawGarden(bg);
   }
 
@@ -56,7 +57,7 @@ export class ArenaRenderer {
       ctx.scale(sx,sy);
     }
     applyCamera(ctx, this.view);
-    ctx.drawImage(this.background,0,0);
+    ctx.drawImage(this.background, -WATER_BLEED, -WATER_BLEED);
     drawAllCover(ctx,state.brokenObstacles);
     if (this.preview) {
       const sx=WORLD.width/1000, sy=WORLD.height/660;

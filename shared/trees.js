@@ -1,7 +1,7 @@
 // Drawing and collision share the same trunk positions and scale.
 export const TREES = [
   { x: 180, y: 240, scale: 1.2 },
-  { x: 1220, y: 170, scale: 1.05 }
+  { x: 1000, y: 160, scale: 1.05 }
 ];
 
 export const TREE_OBSTACLES = TREES.map(({ x, y, scale }) => ({

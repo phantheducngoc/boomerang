@@ -1,4 +1,5 @@
 import { WORLD } from '/shared/config.js';
+import { WATER_BLEED } from '../camera.js';
 import { SHORE } from '/shared/islands.js';
 import { TREES } from '/shared/trees.js';
 import { ellipse, line } from './shapes.js';
@@ -124,10 +125,10 @@ export function drawIslandArena(ctx) {
   water.addColorStop(0.55, '#65aaa9');
   water.addColorStop(1, '#386c91');
   ctx.fillStyle = water;
-  ctx.fillRect(0, 0, WORLD.width, WORLD.height);
+  ctx.fillRect(-WATER_BLEED, -WATER_BLEED, WORLD.width + WATER_BLEED * 2, WORLD.height + WATER_BLEED * 2);
   waterDetails(ctx);
   drawIsland(ctx);
   for (const item of TREES) tree(ctx, item.x, item.y, item.scale);
-  [[470, 130, 58], [520, 145, 48], [1050, 780, 55], [1120, 760, 46], [700, 900, 50]].forEach(
+  [[470, 130, 58], [520, 145, 48], [900, 640, 55], [780, 640, 46], [640, 660, 50]].forEach(
     ([x, y, height]) => bamboo(ctx, x, y, height));
 }

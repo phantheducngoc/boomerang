@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { SHORE } from '../shared/islands.js';
 import { CAMERA, screenToWorld, worldToScreen, updateCamera } from '../public/js/camera.js';
 
 test('2.5D camera round-trips pointer coordinates', () => {
@@ -33,4 +34,13 @@ test('2.5D camera foreshortens depth and keeps the arena visible', () => {
   const bottom=worldToScreen(1500,990);
   assert.ok(top.x>=0 && top.y>=0);
   assert.ok(bottom.x<=1500 && bottom.y<=990);
+});
+
+test('the island sits in a wide ring of water', () => {
+  const left = Math.min(...SHORE.map(point => worldToScreen(point[0], point[1]).x));
+  const right = Math.max(...SHORE.map(point => worldToScreen(point[0], point[1]).x));
+  const top = Math.min(...SHORE.map(point => worldToScreen(point[0], point[1]).y));
+  const bottom = Math.max(...SHORE.map(point => worldToScreen(point[0], point[1]).y));
+  assert.ok(left > 280 && 1500 - right > 280);
+  assert.ok(top > 220 && 990 - bottom > 220);
 });

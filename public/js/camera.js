@@ -1,4 +1,6 @@
-export const CAMERA = { scaleX: 0.92, scaleY: 0.78, offsetX: 60, offsetY: 105 };
+// The island is scaled down and centered so a wide ring of water stays on screen.
+export const CAMERA = { scaleX: 0.84, scaleY: 0.7, offsetX: 240, offsetY: 209 };
+export const WATER_BLEED = 420;
 
 export function applyCamera(ctx, view = { zoom: 1 }) {
   ctx.translate(750, 495);

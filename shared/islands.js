@@ -4,8 +4,18 @@ const SHORE_OUTLINE = [
   [930, 925], [790, 880], [650, 945], [120, 860],
   [60, 610], [150, 480], [55, 330]
 ];
-export const SHORE = SHORE_OUTLINE.map(([x,y]) =>
-  [750+(x-750)*0.94, 500+(y-500)*0.94]);
+
+// East, south, and southwest coasts sit inland. The north lane and the
+// west gate stay put so existing approaches still reach open ground.
+function insetShore([x, y]) {
+  const lane = x < 1000 && y < 400;
+  const westGate = x === 150 && y === 480;
+  const xScale = lane || westGate ? 0.94 : 0.5;
+  const yScale = y < 180 || westGate ? 0.94 : 0.52;
+  return [750 + (x - 750) * xScale, 500 + (y - 500) * yScale];
+}
+
+export const SHORE = SHORE_OUTLINE.map(insetShore);
 
 function insidePolygon(x, y) {
   let inside = false;
