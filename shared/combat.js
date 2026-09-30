@@ -10,6 +10,7 @@ export function throwWeapon(state, player, range = RULES.projectileSpeed * RULES
   if (!hasHeldWeapon(state, player)) return;
   player.throwPoseTime = RULES.throwPoseTime;
   player.throwAim = player.aim;
+  player.throwBodyTurn = Math.PI / 2 * Math.min(1, (player.throwChargeTime ?? 0) / 0.15);
   if (player.pickupCharges > 0) player.pickupCharges--;
   range = clamp(Number.isFinite(range) ? range : RULES.minRange, RULES.minRange, RULES.maxRange);
   const power = (range - RULES.minRange) / (RULES.maxRange - RULES.minRange);

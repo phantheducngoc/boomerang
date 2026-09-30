@@ -13,8 +13,9 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
   const falling = player.fallElapsed != null;
   const swing = strikePose(player);
   const throwing = throwPose(player, Number(options.weapon) || 0);
-  const facing = falling ? Math.PI / 2 : swing ? player.strikeAim : throwing?.releasing
+  const aimFacing = falling ? Math.PI / 2 : swing ? player.strikeAim : throwing?.releasing
     ? throwing.aim : options.facing ?? player.aim ?? player.facing ?? Math.PI / 2;
+  const facing = aimFacing + (throwing?.bodyTurn ?? 0);
   const side = Math.cos(facing);
   const depth = Math.sin(facing);
   const front = frontVisibility(facing);
@@ -23,7 +24,7 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
   const stride = options.still || falling || swing || throwing || !player.alive ? 0
     : Math.sin(time * 14) * Math.min(1.5, speed / RULES.speed) * 7;
   const hands = handPoses(facing, stride, player.strikeKind === 'kick' ? null : swing, player.strikeHand);
-  poseThrowingHand(hands, throwing, facing);
+  poseThrowingHand(hands, throwing, aimFacing);
   ctx.save();
   ctx.translate(player.x, player.y);
   if (options.camera) keepSpriteUpright(ctx);
@@ -64,7 +65,7 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
   if (!kicking) ellipse(ctx, 13 + side * 3, 11 + side * 3, 7, 7, character.dark);
   // Rock the body around its base in rhythm with the hands, leaving feet planted.
   ctx.translate(0, 11);
-  ctx.rotate(stride * 0.012 + (throwing?.twist ?? 0) * (side >= 0 ? 1 : -1));
+  ctx.rotate(stride * 0.012);
   ctx.translate(0, -11);
   drawHands(ctx, hands, character, Number(options.weapon) || 0, true);
   drawTurningFood(ctx, character, facing);

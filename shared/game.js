@@ -82,7 +82,8 @@ export function stepGame(state, dt) {
     const input = player.input;
     player.aim = input.aim;
     const charging = input.charging && !input.dash && !input.throw;
-    player.throwChargeTime = charging ? (player.throwChargeTime ?? 0) + dt : 0;
+    player.throwChargeTime = charging ? (player.throwChargeTime ?? 0) + dt
+      : input.throw ? (player.throwChargeTime ?? 0) : 0;
     if (charging) player.dashTime = 0;
     player.dashCooldown = Math.max(0, player.dashCooldown - dt);
     if (input.dash && player.dashCooldown <= 0) {
@@ -110,6 +111,7 @@ export function stepGame(state, dt) {
     const retrieved = retrieveWeapon(state, player);
     if (input.recall) recallWeapon(state, player);
     if (input.throw && boomerangReady(state)) throwWeapon(state, player, input.range);
+    if (!charging) player.throwChargeTime = 0;
     updateStrikeCombo(state, player, dt);
     if (input.strike && (dashing || !(input.retrieve && retrieved))) strike(state, player, true);
     input.retrieve = false;
