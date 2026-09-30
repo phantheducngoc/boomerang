@@ -4,7 +4,7 @@ export const WORLD = { width: 1500, height: 990, radius: 20 };
 export const RULES = { speed: 210, dashSpeed: 660, dashTime: 0.16,
   dashCooldown: 0.5, projectileSpeed: 510, returnAfter: 0.48,
   recallWindup: 0.2, recallStartSpeed: 35, recallAcceleration: 500, recallAccelerationGrowth: 450, recallMaxSpeed: 1100,
-  minThrowSpeed: 420, maxThrowSpeed: 780, throwAcceleration: 1000,
+  minThrowSpeed: 420, maxThrowSpeed: 780, throwAcceleration: 1000, throwPoseTime: 0.3,
   deflectSpeed: 310, kickDeflectSpeed: 390, deflectDrag: 800, pickupRadius: 32,
   minRange: 180, maxRange: 630, chargeTime: 0.9, strikeRange: 78,
   strikeHalfAngle: Math.PI / 3, strikeCooldown: 0.65, strikeTime: 0.2,

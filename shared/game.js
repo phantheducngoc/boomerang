@@ -49,6 +49,8 @@ function beginRound(state) {
     player.dashCooldown = 0;
     player.strikeCooldown = 0;
     player.strikeTime = 0;
+    player.throwPoseTime = 0;
+    player.throwChargeTime = 0;
     player.strikeHand = 'right';
     player.strikeComboTime = 0;
     player.strikeComboAvailable = false;
@@ -76,9 +78,11 @@ export function stepGame(state, dt) {
     if (!player.alive || player.fallElapsed != null) continue;
     player.strikeCooldown = Math.max(0, player.strikeCooldown - dt);
     player.strikeTime = Math.max(0, player.strikeTime - dt);
+    player.throwPoseTime = Math.max(0, (player.throwPoseTime ?? 0) - dt);
     const input = player.input;
     player.aim = input.aim;
     const charging = input.charging && !input.dash && !input.throw;
+    player.throwChargeTime = charging ? (player.throwChargeTime ?? 0) + dt : 0;
     if (charging) player.dashTime = 0;
     player.dashCooldown = Math.max(0, player.dashCooldown - dt);
     if (input.dash && player.dashCooldown <= 0) {

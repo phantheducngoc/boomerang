@@ -5,21 +5,25 @@ import { drawTurningFood, foodFaceOffset, foodThickness } from './food.js';
 import { strikePose } from './strike.js';
 import { frontVisibility, bodyProjection } from './turning.js';
 import { keepSpriteUpright } from '../camera.js';
+import { throwPose, poseThrowingHand } from './throw-pose.js';
 
 export function drawCharacter(ctx, player, time = 0, options = {}) {
   const character = CHARACTERS.find(item => item.id === player.character) || CHARACTERS[0];
   const size = options.scale || 1;
   const falling = player.fallElapsed != null;
   const swing = strikePose(player);
-  const facing = falling ? Math.PI / 2 : swing ? player.strikeAim : options.facing ?? player.aim ?? player.facing ?? Math.PI / 2;
+  const throwing = throwPose(player, Number(options.weapon) || 0);
+  const facing = falling ? Math.PI / 2 : swing ? player.strikeAim : throwing?.releasing
+    ? throwing.aim : options.facing ?? player.aim ?? player.facing ?? Math.PI / 2;
   const side = Math.cos(facing);
   const depth = Math.sin(facing);
   const front = frontVisibility(facing);
   const bob = options.still ? 0 : Math.sin(time * 3 + player.x * 0.02) * 2;
   const speed = Math.hypot(player.motionX ?? 0, player.motionY ?? 0);
-  const stride = options.still || falling || swing || !player.alive ? 0
+  const stride = options.still || falling || swing || throwing || !player.alive ? 0
     : Math.sin(time * 14) * Math.min(1.5, speed / RULES.speed) * 7;
   const hands = handPoses(facing, stride, player.strikeKind === 'kick' ? null : swing, player.strikeHand);
+  poseThrowingHand(hands, throwing, facing);
   ctx.save();
   ctx.translate(player.x, player.y);
   if (options.camera) keepSpriteUpright(ctx);
@@ -60,7 +64,7 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
   if (!kicking) ellipse(ctx, 13 + side * 3, 11 + side * 3, 7, 7, character.dark);
   // Rock the body around its base in rhythm with the hands, leaving feet planted.
   ctx.translate(0, 11);
-  ctx.rotate(stride * 0.012);
+  ctx.rotate(stride * 0.012 + (throwing?.twist ?? 0) * (side >= 0 ? 1 : -1));
   ctx.translate(0, -11);
   drawHands(ctx, hands, character, Number(options.weapon) || 0, true);
   drawTurningFood(ctx, character, facing);

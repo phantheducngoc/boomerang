@@ -8,6 +8,8 @@ import { hasHeldWeapon } from './weapon-inventory.js';
 
 export function throwWeapon(state, player, range = RULES.projectileSpeed * RULES.returnAfter) {
   if (!hasHeldWeapon(state, player)) return;
+  player.throwPoseTime = RULES.throwPoseTime;
+  player.throwAim = player.aim;
   if (player.pickupCharges > 0) player.pickupCharges--;
   range = clamp(Number.isFinite(range) ? range : RULES.minRange, RULES.minRange, RULES.maxRange);
   const power = (range - RULES.minRange) / (RULES.maxRange - RULES.minRange);

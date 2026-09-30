@@ -20,7 +20,7 @@ export function drawHands(ctx, poses, character, weaponCount, behind) {
   for (const pose of poses) {
     if (pose.behind !== behind) continue;
     ellipse(ctx, pose.x, pose.y, 7, 7, behind ? character.dark : character.color);
-    if (weaponCount > (pose.hand === 'right' ? 0 : 1)) {
+    if (weaponCount > (pose.weaponSlot ?? (pose.hand === 'right' ? 0 : 1))) {
       drawHeldBoomerang(ctx, pose.x, pose.y, pose.angle, undefined, character.color);
     }
   }
