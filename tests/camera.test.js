@@ -12,14 +12,17 @@ test('2.5D camera round-trips pointer coordinates', () => {
   }
 });
 
-test('camera frames offshore throws and preserves aim at reduced zoom', () => {
+test('offshore throws zoom out at most ten percent and preserve aim', () => {
   const view = { zoom: 1 };
   const weapons = [{ x: -550, y: -400 }, { x: 2050, y: 1390 }];
   updateCamera(view, weapons, 1 / 60);
   assert.ok(view.zoom < 1);
+  assert.ok(view.zoom > 0.9, 'zoom eases out instead of snapping');
+  for (let i = 0; i < 600; i++) updateCamera(view, weapons, 1 / 60);
+  assert.ok(view.zoom >= 0.9);
+  assert.ok(view.zoom < 0.901);
   for (const weapon of weapons) {
     const screen = worldToScreen(weapon.x, weapon.y, view);
-    assert.ok(screen.x > 0 && screen.x < 1500 && screen.y > 0 && screen.y < 990);
     const world = screenToWorld(screen.x, screen.y, view);
     assert.ok(Math.hypot(world.x - weapon.x, world.y - weapon.y) < 1e-8);
   }

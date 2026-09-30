@@ -33,8 +33,10 @@ export function updateCamera(view, projectiles, dt) {
     target = Math.min(target, 680 / (Math.abs(point.x - 750) + 80),
       425 / (Math.abs(point.y - 495) + 80));
   }
-  // Pull out immediately to retain visibility; ease back after the throw returns.
-  view.zoom = target < view.zoom ? target : view.zoom + (target - view.zoom) * (1 - Math.exp(-3 * dt));
+  // Keep the arena prominent even when a long throw travels beyond the view.
+  target = Math.max(0.9, target);
+  const rate = target < view.zoom ? 6 : 3;
+  view.zoom += (target - view.zoom) * (1 - Math.exp(-rate * Math.max(0, dt)));
 }
 
 export function keepSpriteUpright(ctx) {
