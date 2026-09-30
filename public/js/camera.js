@@ -1,5 +1,5 @@
-// The island is scaled down and centered so a wide ring of water stays on screen.
-export const CAMERA = { scaleX: 0.84, scaleY: 0.7, offsetX: 240, offsetY: 209 };
+// Frame the enlarged island closely; offshore throws can still pull the camera out.
+export const CAMERA = { scaleX: 0.96, scaleY: 0.84, offsetX: 30, offsetY: 75 };
 export const WATER_BLEED = 420;
 
 export function applyCamera(ctx, view = { zoom: 1 }) {

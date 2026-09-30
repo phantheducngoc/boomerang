@@ -36,11 +36,13 @@ test('2.5D camera foreshortens depth and keeps the arena visible', () => {
   assert.ok(bottom.x<=1500 && bottom.y<=990);
 });
 
-test('the island sits in a wide ring of water', () => {
+test('the enlarged island fills the view with a narrow water border', () => {
   const left = Math.min(...SHORE.map(point => worldToScreen(point[0], point[1]).x));
   const right = Math.max(...SHORE.map(point => worldToScreen(point[0], point[1]).x));
   const top = Math.min(...SHORE.map(point => worldToScreen(point[0], point[1]).y));
   const bottom = Math.max(...SHORE.map(point => worldToScreen(point[0], point[1]).y));
-  assert.ok(left > 280 && 1500 - right > 280);
-  assert.ok(top > 220 && 990 - bottom > 220);
+  assert.ok(left > 0 && 1500 - right > 0);
+  assert.ok(top > 0 && 990 - bottom > 0);
+  assert.ok(right - left > 1200);
+  assert.ok(bottom - top > 690);
 });
