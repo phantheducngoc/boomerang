@@ -1,11 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { smoothFacing, frontVisibility, bodyProjection } from '../public/js/art/turning.js';
+import { smoothFacing, frontVisibility, bodyProjection, rollProjection } from '../public/js/art/turning.js';
 
 test('turning takes the short route across the angle boundary',()=> {
   const current=Math.PI-0.05;
   const next=smoothFacing(current,-Math.PI+0.05,1/60);
   assert.ok(next>current && next<current+0.1);
+});
+
+test('sushi keeps a solid rounded profile through a full turn', () => {
+  for (let angle = -Math.PI; angle <= Math.PI; angle += 0.01) {
+    assert.ok(rollProjection(angle).width >= 0.85);
+    assert.ok(Math.abs(rollProjection(angle + 0.01).width - rollProjection(angle).width) < 0.01);
+  }
+  assert.equal(rollProjection(0).width, 0.85);
+  assert.equal(rollProjection(Math.PI / 2).width, 1);
 });
 
 test('quarter turns expose thickness and hide the front at the side and back', () => {

@@ -61,19 +61,19 @@ export function drawBodyVolume(ctx, key, draw) {
   ctx.drawImage(face, -ORIGIN_X, -ORIGIN_Y);
 }
 
-export function drawTurningVolume(ctx, key, draw, angle, thickness) {
+export function drawTurningVolume(ctx, key, draw, angle, thickness, projection) {
   for (const back of [true, false]) {
     const surfaceKey = `${key}:${back}`;
     if (!surfaces.has(surfaceKey)) surfaces.set(surfaceKey, createSurface(surface => draw(surface, back)));
   }
-  const view = bodyProjection(angle, thickness);
+  const view = projection ?? bodyProjection(angle, thickness);
   const { face } = surfaces.get(`${key}:${view.back}`);
   const { edge } = surfaces.get(`${key}:true`);
   const width = Math.max(0.035, view.width);
   const halfDepth = Math.abs(view.depth) / 2;
   // Taper the ends of the side wall into a rounded shoulder instead of a flat slab.
   const slices = Math.max(1, Math.ceil(halfDepth * 4));
-  const rounding = 0.16 * Math.abs(Math.cos(angle));
+  const rounding = projection ? 0 : 0.16 * Math.abs(Math.cos(angle));
   for (let i = 0; i <= slices; i++) {
     const position = i / slices * 2 - 1;
     const offset = halfDepth * position;

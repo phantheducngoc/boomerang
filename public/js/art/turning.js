@@ -16,3 +16,12 @@ export function bodyProjection(angle, thickness = 24) {
     faceX: Math.cos(angle) * thickness / 2
   };
 }
+
+export function rollProjection(angle) {
+  return {
+    width: Math.sqrt(Math.sin(angle) ** 2 + 0.85 ** 2 * Math.cos(angle) ** 2),
+    depth: 0,
+    back: Math.sin(angle) < 0,
+    faceX: 0
+  };
+}

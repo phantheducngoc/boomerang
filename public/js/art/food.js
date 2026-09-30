@@ -1,5 +1,6 @@
 import { ellipse, rounded, line } from './shapes.js';
 import { drawBodyVolume, drawTurningVolume } from './body-volume.js';
+import { rollProjection } from './turning.js';
 
 function path(ctx, points, fill) {
   ctx.beginPath();
@@ -140,7 +141,7 @@ export const foodThickness = id => thicknesses[id] ?? 24;
 
 export function drawTurningFood(ctx, character, angle) {
   drawTurningVolume(ctx, character.id, bodies[character.id] || avocado,
-    angle, foodThickness(character.id));
+    angle, foodThickness(character.id), character.id === 'lilac' ? rollProjection(angle) : undefined);
 }
 
 export function drawFoodBody(ctx, character, back) {

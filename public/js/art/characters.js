@@ -69,6 +69,7 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
   drawTurningFood(ctx, character, facing);
   ctx.save();
   const profile = bodyProjection(facing, foodThickness(character.id));
+  if (character.id === 'lilac') profile.faceX = side * 23;
   ctx.translate(profile.faceX, depth * 5 + foodFaceOffset(character.id));
   ctx.scale(Math.max(0.001, profile.width), 1);
   ctx.globalAlpha *= front;
