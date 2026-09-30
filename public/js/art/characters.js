@@ -1,6 +1,6 @@
 import { CHARACTERS, RULES } from '/shared/config.js';
 import { ellipse, line } from './shapes.js';
-import { drawHeldBoomerang } from './held-boomerang.js';
+import { handPoses, drawHands } from './hands.js';
 import { drawTurningFood, foodFaceOffset, foodThickness } from './food.js';
 import { strikePose } from './strike.js';
 import { frontVisibility, bodyProjection } from './turning.js';
@@ -9,7 +9,6 @@ import { keepSpriteUpright } from '../camera.js';
 export function drawCharacter(ctx, player, time = 0, options = {}) {
   const character = CHARACTERS.find(item => item.id === player.character) || CHARACTERS[0];
   const size = options.scale || 1;
-  const dual = Number(options.weapon) >= 2;
   const falling = player.fallElapsed != null;
   const swing = strikePose(player);
   const facing = falling ? Math.PI / 2 : swing ? player.strikeAim : options.facing ?? player.aim ?? player.facing ?? Math.PI / 2;
@@ -20,8 +19,7 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
   const speed = Math.hypot(player.motionX ?? 0, player.motionY ?? 0);
   const stride = options.still || falling || swing || !player.alive ? 0
     : Math.sin(time * 14) * Math.min(1.5, speed / RULES.speed) * 7;
-  const handSwingX = side * stride;
-  const handSwingY = depth * stride * 0.75;
+  const hands = handPoses(facing, stride, player.strikeKind === 'kick' ? null : swing, player.strikeHand);
   ctx.save();
   ctx.translate(player.x, player.y);
   if (options.camera) keepSpriteUpright(ctx);
@@ -64,8 +62,7 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
   ctx.translate(0, 11);
   ctx.rotate(stride * 0.012);
   ctx.translate(0, -11);
-  if (!dual) ellipse(ctx, -26 - handSwingX, -7 - handSwingY, 7, 7, character.dark);
-  if (kicking) ellipse(ctx, 26, -7, 7, 7, character.color);
+  drawHands(ctx, hands, character, Number(options.weapon) || 0, true);
   drawTurningFood(ctx, character, facing);
   ctx.save();
   const profile = bodyProjection(facing, foodThickness(character.id));
@@ -95,28 +92,7 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
     const footY = 8 + Math.sin(facing) * reach;
     ellipse(ctx, footX, footY, 8, 8, character.color);
   }
-  if (swing) {
-    const angle = player.strikeAim + swing.angle;
-    const handX = Math.cos(angle) * 37;
-    const handY = Math.sin(angle) * 29 - 5;
-    if (player.strikeKind !== 'kick') {
-      ellipse(ctx, handX, handY, 7, 7, character.color);
-      if (options.weapon) drawHeldBoomerang(ctx, handX, handY, angle, undefined, character.color);
-    }
-  } else {
-    const handAngle = facing + (dual ? 0.65 : 0);
-    const handX = Math.cos(handAngle) * 32 + handSwingX;
-    const handY = Math.sin(handAngle) * 25 - 8 + handSwingY;
-    ellipse(ctx, handX, handY, 7, 7, character.color);
-    if (options.weapon) drawHeldBoomerang(ctx, handX, handY, handAngle, undefined, character.color);
-  }
-  if (dual) {
-    const angle = swing && player.strikeHand === 'left' ? facing + 0.65 : facing - 0.85;
-    const handX = Math.cos(angle) * 34 - handSwingX;
-    const handY = Math.sin(angle) * 27 - 8 - handSwingY;
-    ellipse(ctx, handX, handY, 7, 7, character.color);
-    drawHeldBoomerang(ctx, handX, handY, angle, undefined, character.color);
-  }
+  drawHands(ctx, hands, character, Number(options.weapon) || 0, false);
   ctx.restore();
   if (options.label) {
     ctx.save();
