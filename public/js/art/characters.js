@@ -10,7 +10,7 @@ import { drawDefeat } from './defeat.js';
 
 export function drawCharacter(ctx, player, time = 0, options = {}) {
   const character = CHARACTERS.find(item => item.id === player.character) || CHARACTERS[0];
-  const size = options.scale || 1;
+  const size = (options.scale || 1) * 0.9;
   const falling = player.fallElapsed != null;
   const swing = strikePose(player);
   const throwing = throwPose(player, Number(options.weapon) || 0);
