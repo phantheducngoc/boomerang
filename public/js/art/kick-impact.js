@@ -10,6 +10,8 @@ export class KickImpacts {
       const fade = 1 - progress;
       ctx.save();
       ctx.translate(hit.x, hit.y - 15);
+      // Weapon impacts reuse the radial streak burst at a tighter, lighter scale.
+      if (hit.type === 'weapon-impact') ctx.scale(0.55, 0.55);
       const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, 58);
       glow.addColorStop(0, 'rgba(255,255,224,0.9)');
       glow.addColorStop(0.35, 'rgba(255,221,112,0.6)');

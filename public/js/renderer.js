@@ -2,6 +2,7 @@ import { drawGarden, drawAllCover } from './art/garden.js';
 import { drawCharacter } from './art/characters.js';
 import { drawStrike } from './art/strike.js';
 import { WeaponTrails } from './art/weapon-trail.js';
+import { drawWeaponWind } from './art/weapon-wind.js';
 import { drawAimArrow } from './art/aim-arrow.js';
 import { drawRecallRing } from './art/recall-ring.js';
 import { DashTrails } from './art/dash-trail.js';
@@ -125,6 +126,7 @@ export class ArenaRenderer {
       ctx.save();
       ctx.translate(weapon.x,weapon.y-height);
       keepSpriteUpright(ctx);
+      if (weapon.mode === 'flying') drawWeaponWind(ctx, time);
       boomerang(ctx,0,0,grounded && (!weapon.recalling || weapon.recallWindup>0)?weapon.angle:time*(deflected?10:22),BOOMERANG_SCALE,
         characterColor(state, weapon.owner));
       ctx.restore();
@@ -140,7 +142,7 @@ export class ArenaRenderer {
     for (const event of state.events || []) {
       if (event.id<=this.lastEvent) continue;
       this.lastEvent=event.id;
-      if (event.type==='kick' || event.type==='clash') {
+      if (event.type==='kick' || event.type==='clash' || event.type==='weapon-impact') {
         this.kickImpacts.add(event,time); continue;
       }
       if (event.type==='fall') { this.waterSplashes.add(event,time); continue; }

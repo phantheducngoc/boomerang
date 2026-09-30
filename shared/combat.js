@@ -39,6 +39,7 @@ function updateFlight(state, weapon, owner, dt) {
   weapon.traveled += travel;
   if (distance(weapon, owner) > 48) weapon.departed = true;
   if (weapon.returning && hitsObstacle(weapon.x, weapon.y, 8, state.brokenObstacles)) {
+    obstacleImpact(state, weapon);
     weapon.x = weapon.safeX;
     weapon.y = weapon.safeY;
     weapon.mode = 'grounded';
@@ -48,6 +49,7 @@ function updateFlight(state, weapon, owner, dt) {
     return true;
   }
   if (!weapon.returning && hitsObstacle(weapon.x, weapon.y, 8, state.brokenObstacles)) {
+    obstacleImpact(state, weapon);
     weapon.x = previous.x;
     weapon.y = previous.y;
     weapon.returning = true;
@@ -77,6 +79,14 @@ function updateFlight(state, weapon, owner, dt) {
   return weapon.age < 8;
 }
 
+function obstacleImpact(state, weapon) {
+  // An outbound bounce may touch cover again immediately; emit one burst per impact.
+  if (weapon.age - (weapon.lastImpactAge ?? -1) < 0.1) return;
+  weapon.lastImpactAge = weapon.age;
+  state.events.push({ id: ++state.sequence, type: 'weapon-impact',
+    x: weapon.x, y: weapon.y, angle: weapon.angle });
+}
+
 export function updateWeapons(state, dt) {
   const steps = Math.max(1, Math.ceil(dt / (1 / 180)));
   state.projectiles = state.projectiles.filter(weapon => {
@@ -85,12 +95,14 @@ export function updateWeapons(state, dt) {
     for (let step = 0; step < steps; step++) {
       weapon.age += dt / steps;
       const wasRecalling = weapon.recalling;
+      const wasBlocked = weapon.blocked;
       const previous = { x: weapon.x, y: weapon.y };
       const keep = weapon.recalling
         ? updateRecall(weapon, owner, dt / steps, state.brokenObstacles) : weapon.mode === 'flying'
         ? updateFlight(state, weapon, owner, dt / steps)
         : updateDropped(weapon, dt / steps, state.brokenObstacles);
       if (wasRecalling) {
+        if (weapon.blocked && !wasBlocked) obstacleImpact(state, weapon);
         for (const player of state.players) {
           if (parryWeapon(state, weapon, player, previous)) break;
         }
