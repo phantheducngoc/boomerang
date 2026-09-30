@@ -1,25 +1,29 @@
-import { collides } from '/shared/physics.js';
+import { CHARACTERS, RULES } from '../../../shared/config.js';
+
+export function chargeArrowDistance(range) {
+  const power = Math.max(0, Math.min(1, (range - RULES.minRange) / (RULES.maxRange - RULES.minRange)));
+  return 50 + power * 90;
+}
 
 export function drawAimArrow(ctx, player, range) {
-  if (range === null || !player.alive) return;
+  if (!Number.isFinite(range) || !player.alive || player.fallElapsed != null) return;
   const directionX = Math.cos(player.aim);
   const directionY = Math.sin(player.aim);
-  const points = [];
-  for (let distance = 0; distance <= 48; distance += 2) {
-    const x = player.x + directionX * distance;
-    const y = player.y + directionY * distance;
-    if (collides(x, y, 8)) break;
-    if (distance >= 36) points.push([x, y]);
-  }
-  if (points.length < 2) return;
+  const distance = chargeArrowDistance(range);
+  const color = CHARACTERS.find(item => item.id === player.character)?.color ?? '#d4b9ee';
   ctx.save();
+  ctx.translate(player.x + directionX * distance, player.y + directionY * distance);
+  ctx.rotate(player.aim);
   ctx.setLineDash([]);
   ctx.lineCap = 'round';
-  ctx.strokeStyle = 'rgba(255,242,178,0.85)';
-  ctx.lineWidth = 3;
+  ctx.lineJoin = 'round';
+  ctx.globalAlpha *= 0.9;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 8;
   ctx.beginPath();
-  ctx.moveTo(...points[0]);
-  ctx.lineTo(...points.at(-1));
+  ctx.moveTo(-8, -11);
+  ctx.lineTo(4, 0);
+  ctx.lineTo(-8, 11);
   ctx.stroke();
   ctx.restore();
 }

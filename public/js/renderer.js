@@ -92,8 +92,9 @@ export class ArenaRenderer {
       previous.facing=previous.facing==null || snap || player.strikeTime>0
         ? desired : smoothFacing(previous.facing,desired,turnDt);
       previous.turnTime=time;
-      if (mine && state.phase==='playing') drawAimArrow(ctx,display,range);
-      if (mine && player.alive && range!==null) {
+      const canAim = mine && armed && heldWeaponCount(state, player) > 0;
+      if (canAim && state.phase==='playing') drawAimArrow(ctx,display,range);
+      if (canAim && player.alive && range!==null) {
         ctx.save();
         ctx.translate(display.x,display.y+44);
         keepSpriteUpright(ctx);
