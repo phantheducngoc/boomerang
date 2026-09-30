@@ -109,11 +109,37 @@ test('disconnect and reset cancel charges and require release before rearming',(
 });
 
 test('unsupported mappings and blocked API access degrade safely',()=> {
-  const f=fixture();f.pad.mapping='';
+  const f=fixture();f.pad.mapping='';f.pad.id='Generic USB Joystick';
   assert.equal(f.input.read(),null);
   assert.match(f.input.status(),/unsupported/);
   const blocked=new GamepadInput(()=>{throw new Error('Blocked');});
   assert.equal(blocked.read(),null);
+});
+
+test('a Joy-Con uses its sideways stick and face buttons without a standard mapping',()=> {
+  const f=fixture();
+  f.pad.mapping='';
+  f.pad.id='Joy-Con (R) (Vendor: 057e Product: 2007)';
+  f.pad.axes=[0,-1,0,0];
+  const moved=f.input.read();
+  assert.ok(moved.x>.9);
+  assert.equal(moved.y,0);
+  assert.equal(moved.aim,0);
+  assert.match(f.input.status(),/Joy-Con R/);
+  f.press(0);f.input.read();f.press(0,false);
+  assert.equal(f.input.read().throw,true);
+  f.press(3);
+  assert.equal(f.input.read().dash,true);
+  f.press(1);
+  assert.equal(f.input.read().strike,true);
+  const left=fixture();
+  left.pad.mapping='';
+  left.pad.id='057e-2006-Joy-Con L';
+  left.pad.axes=[1,0,0,0];
+  const turned=left.input.read();
+  assert.equal(turned.x,0);
+  assert.ok(turned.y<-.9);
+  assert.match(left.input.status(),/Joy-Con L/);
 });
 
 test('X and B strike; A and right shoulder dash; old trigger no longer throws',()=> {

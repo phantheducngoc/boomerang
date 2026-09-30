@@ -1,4 +1,5 @@
 import { RULES } from '../../shared/config.js';
+import { joyConButtons, joyConMove, joyConSide } from './joy-con.js';
 
 function stick(axes, index) {
   const x = Number.isFinite(axes[index]) ? axes[index] : 0;
@@ -23,10 +24,23 @@ export class GamepadInput {
     catch { return []; }
   }
 
+  usablePads() {
+    const pads = this.pads();
+    const standard = pads.filter(pad => pad.mapping === 'standard');
+    return standard.length ? standard : pads.filter(pad => joyConSide(pad.id));
+  }
+
   status() {
     const pads = this.pads();
     if (pads.some(pad => pad.mapping === 'standard')) return 'Controller connected · LS move/aim · RS override · Y throw/recall · A/R dash · X/B strike';
-    if (pads.length) return 'Controller layout unsupported · use a standard-mapped gamepad or keyboard';
+    const joy = pads.find(pad => joyConSide(pad.id));
+    if (joy) {
+      const side = joyConSide(joy.id);
+      return side === 'right'
+        ? 'Joy-Con R connected · stick move/aim · Y throw · A/SR dash · X/B/SL hit'
+        : 'Joy-Con L connected · stick move/aim · Right throw · Down/SR dash · Up/Left/SL hit';
+    }
+    if (pads.length) return `${pads[0].id} · layout unsupported · use a standard gamepad, Joy-Con, or keyboard`;
     return 'Controller: connect by USB or Bluetooth, then press a button · use localhost or HTTPS';
   }
 
@@ -42,14 +56,19 @@ export class GamepadInput {
   }
 
   read() {
-    const pads = this.pads().filter(pad => pad.mapping === 'standard');
+    const pads = this.usablePads();
     const pad = pads.find(item => item.index === this.index) || pads[0];
     if (!pad) { this.index = null; this.reset(); return null; }
     if (this.index !== pad.index) { this.reset(); this.aim = null; this.index = pad.index; }
     const pressed = index => Boolean(pad.buttons[index]?.pressed || pad.buttons[index]?.value > 0.5);
-    const buttons = { throw: pressed(3), dash: pressed(0) || pressed(5), strike: pressed(2) || pressed(1) };
-    const move = stick(pad.axes, 0);
-    const look = stick(pad.axes, 2);
+    const side = joyConSide(pad.id);
+    const buttons = side ? {
+      throw: pressed(joyConButtons(side).throw),
+      dash: joyConButtons(side).dash.some(pressed),
+      strike: joyConButtons(side).strike.some(pressed)
+    } : { throw: pressed(3), dash: pressed(0) || pressed(5), strike: pressed(2) || pressed(1) };
+    const move = side ? stick(joyConMove(pad.axes, side), 0) : stick(pad.axes, 0);
+    const look = side ? { x: 0, y: 0 } : stick(pad.axes, 2);
     if (look.x || look.y) this.aim = Math.atan2(look.y, look.x);
     else if (move.x || move.y) this.aim = Math.atan2(move.y, move.x);
     const result = { ...move, aim: this.aim, throw: false, dash: false, strike: false,
