@@ -11,7 +11,7 @@ export function createPlayer(id, name, character, bot = false) {
   return { id, name, character, bot, weaponCount: 1, x: 0, y: 0, aim: 0, facing: Math.PI / 2, alive: true,
     strikeCooldown: 0, strikeTime: 0, strikeAim: 0, strikeHand: 'right',
     strikeComboTime: 0, strikeComboAvailable: false, strikeComboQueued: false,
-    motionX: 0, motionY: 0, score: 0, dashTime: 0, dashCooldown: 0, inputSequence: 0,
+    motionX: 0, motionY: 0, score: 0, dashTime: 0, dashCooldown: 0,
     dashX: 0, dashY: 0, input: emptyInput() };
 }
 

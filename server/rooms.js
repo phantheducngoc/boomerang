@@ -1,10 +1,9 @@
 import { randomInt } from 'node:crypto';
 import { createGame, createPlayer, stepGame } from '../shared/game.js';
-import { RULES } from '../shared/config.js';
+import { RULES, emptyInput } from '../shared/config.js';
 import { updateBots } from '../shared/bots.js';
 import { profile, input } from './validation.js';
 import { addBot, removeBot, seatCount } from './room-bots.js';
-import { pushInput, takeInput } from './player-input.js';
 
 export class RoomService {
   constructor(send) {
@@ -57,7 +56,7 @@ export class RoomService {
         if (seatCount(room) >= RULES.maxPlayers) throw new Error('This room is full (6 players).');
       }
       const details = profile(message);
-      room.members.set(client.id, { client, lastInput: Date.now(), inputQueue: [],
+      room.members.set(client.id, { client, lastInput: Date.now(),
         player: createPlayer(client.id, details.name, details.character) });
       client.room = room.code;
       this.lobby(room);
@@ -87,14 +86,20 @@ export class RoomService {
       const next = input(message);
       if (!next) return;
       const member = room.members.get(client.id);
-      if (member) pushInput(member, next);
+      const previous = member.player.input;
+      member.player.input = { ...next, throw: previous.throw || next.throw, dash: previous.dash || next.dash,
+        retrieve: previous.retrieve || next.retrieve, strike: previous.strike || next.strike,
+        range: previous.throw ? previous.range : next.range };
+      member.lastInput = Date.now();
     }
   }
 
   tick(dt) {
     for (const room of this.rooms.values()) {
       if (!room.game) continue;
-      for (const member of room.members.values()) takeInput(member);
+      for (const member of room.members.values()) {
+        if (Date.now() - member.lastInput > 250) member.player.input = emptyInput();
+      }
       room.botTime += dt;
       updateBots(room.game, room.botTime);
       stepGame(room.game, dt);

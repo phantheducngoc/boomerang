@@ -8,11 +8,9 @@ export function profile(message) {
 
 export function input(message) {
   if (![message.x, message.y, message.aim].every(Number.isFinite)) return null;
-  const sequence = Number.isSafeInteger(message.sequence) && message.sequence >= 0 ? message.sequence : 0;
   return { x: Math.max(-1, Math.min(1, message.x)), y: Math.max(-1, Math.min(1, message.y)),
     aim: message.aim % (Math.PI * 2), throw: message.throw === true, dash: message.dash === true, strike: message.strike === true, retrieve: message.retrieve === true,
     recall: message.recall === true,
     charging: message.charging === true,
-    range: Number.isFinite(message.range) ? Math.max(RULES.minRange, Math.min(RULES.maxRange, message.range)) : RULES.minRange,
-    sequence };
+    range: Number.isFinite(message.range) ? Math.max(RULES.minRange, Math.min(RULES.maxRange, message.range)) : RULES.minRange };
 }
