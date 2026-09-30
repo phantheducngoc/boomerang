@@ -1,12 +1,23 @@
 import { RULES } from '../../../shared/config.js';
 
+function releaseTurn(progress, windup) {
+  const followThrough = -Math.PI / 6;
+  if (progress < 0.6) {
+    const t = progress / 0.6;
+    const ease = t * t * (3 - 2 * t);
+    return windup + (followThrough - windup) * ease;
+  }
+  const t = Math.min(1, (progress - 0.6) / 0.4);
+  return followThrough * (1 - t * t * (3 - 2 * t));
+}
+
 export function throwPose(player, weapons) {
   if (!player.alive || player.fallElapsed != null || player.strikeTime > 0) return null;
   if (player.throwPoseTime > 0) {
     const progress = Math.max(0, 1 - player.throwPoseTime / RULES.throwPoseTime);
     const reach = Math.sin(Math.PI * Math.min(1, progress / 0.7));
     return { releasing: true, aim: player.throwAim, lift: 24 * (1 - progress) ** 3,
-      reach: 28 * reach, bodyTurn: (player.throwBodyTurn ?? Math.PI / 2) * (1 - Math.min(1, progress / 0.65)) ** 2 };
+      reach: 28 * reach, bodyTurn: releaseTurn(progress, player.throwBodyTurn ?? Math.PI / 2) };
   }
   if (weapons > 0 && player.input?.charging && !player.input?.dash) {
     const windup = Math.min(1, (player.throwChargeTime ?? 0) / 0.15);

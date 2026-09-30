@@ -9,7 +9,12 @@ test('charged body turns sideways then rotates toward the committed throw', () =
   Object.assign(player, { throwPoseTime: RULES.throwPoseTime, throwAim: 1,
     throwBodyTurn: Math.PI / 2 });
   assert.equal(throwPose(player, 0).bodyTurn, Math.PI / 2);
+  player.throwPoseTime = RULES.throwPoseTime * 0.4;
+  assert.ok(Math.abs(throwPose(player, 0).bodyTurn + Math.PI / 6) < 1e-9);
   player.throwPoseTime = RULES.throwPoseTime * 0.2;
-  assert.equal(throwPose(player, 0).bodyTurn, 0);
+  assert.ok(throwPose(player, 0).bodyTurn < 0);
+  assert.ok(throwPose(player, 0).bodyTurn > -Math.PI / 6);
+  player.throwPoseTime = 1e-9;
+  assert.ok(Math.abs(throwPose(player, 0).bodyTurn) < 1e-8);
   assert.equal(throwPose(player, 0).aim, 1);
 });
