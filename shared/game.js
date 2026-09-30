@@ -49,6 +49,7 @@ function beginRound(state) {
     player.dashCooldown = 0;
     player.strikeCooldown = 0;
     player.strikeTime = 0;
+    player.strikeRecoveryTime = 0;
     player.throwPoseTime = 0;
     player.throwChargeTime = 0;
     player.strikeHand = 'right';
@@ -78,6 +79,9 @@ export function stepGame(state, dt) {
     if (!player.alive || player.fallElapsed != null) continue;
     player.strikeCooldown = Math.max(0, player.strikeCooldown - dt);
     player.strikeTime = Math.max(0, player.strikeTime - dt);
+    player.strikeRecoveryTime = Math.max(0, (player.strikeRecoveryTime ?? 0) - dt);
+    const recovering = player.strikeTime <= 0 && player.strikeRecoveryTime > 0;
+    if (recovering) player.dashTime = 0;
     player.throwPoseTime = Math.max(0, (player.throwPoseTime ?? 0) - dt);
     const input = player.input;
     player.aim = input.aim;
@@ -86,7 +90,7 @@ export function stepGame(state, dt) {
       : input.throw ? (player.throwChargeTime ?? 0) : 0;
     if (charging) player.dashTime = 0;
     player.dashCooldown = Math.max(0, player.dashCooldown - dt);
-    if (input.dash && player.dashCooldown <= 0) {
+    if (input.dash && player.dashCooldown <= 0 && !recovering) {
       const length = input.strike ? 0 : Math.hypot(input.x, input.y);
       player.dashX = length ? input.x / length : Math.cos(player.aim);
       player.dashY = length ? input.y / length : Math.sin(player.aim);
@@ -100,7 +104,7 @@ export function stepGame(state, dt) {
     if (directionX || directionY) player.facing = Math.atan2(directionY, directionX);
     const previousX = player.x;
     const previousY = player.y;
-    if (!charging) {
+    if (!charging && !recovering) {
       movePlayer(player, dashing ? player.dashX * RULES.dashSpeed : input.x / length * RULES.speed,
         dashing ? player.dashY * RULES.dashSpeed : input.y / length * RULES.speed,
         dt, state.players, bumpPlayers, state.brokenObstacles);

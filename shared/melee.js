@@ -47,6 +47,8 @@ function beginStrike(state, player, combo, defer) {
   player.strikeComboTime = player.strikeComboAvailable ? RULES.dualStrikeWindow : 0;
   player.strikeComboQueued = false;
   startStrikeMotion(player);
+  player.strikeRecoveryTime = player.strikeKind === 'swing'
+    ? RULES.strikeTime + RULES.strikeRecovery : 0;
   if (!defer) resolveStrike(state, player);
 }
 
