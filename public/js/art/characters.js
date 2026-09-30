@@ -1,4 +1,4 @@
-import { CHARACTERS } from '/shared/config.js';
+import { CHARACTERS, RULES } from '/shared/config.js';
 import { ellipse, line } from './shapes.js';
 import { drawHeldBoomerang } from './held-boomerang.js';
 import { drawFoodBody, foodFaceOffset } from './food.js';
@@ -17,6 +17,11 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
   const depth = Math.sin(facing);
   const front = frontVisibility(facing);
   const bob = options.still ? 0 : Math.sin(time * 3 + player.x * 0.02) * 2;
+  const speed = Math.hypot(player.motionX ?? 0, player.motionY ?? 0);
+  const stride = options.still || falling || swing || !player.alive ? 0
+    : Math.sin(time * 14) * Math.min(1.5, speed / RULES.speed) * 7;
+  const handSwingX = side * stride;
+  const handSwingY = depth * stride * 0.75;
   ctx.save();
   ctx.translate(player.x, player.y);
   if (options.camera) keepSpriteUpright(ctx);
@@ -55,7 +60,11 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
   const kicking = swing && player.strikeKind === 'kick';
   ellipse(ctx, -12 + side * 3, 11 - side * 3, 7, 7, character.dark);
   if (!kicking) ellipse(ctx, 13 + side * 3, 11 + side * 3, 7, 7, character.dark);
-  if (!dual) ellipse(ctx, -26, -7, 7, 7, character.dark);
+  // Rock the body around its base in rhythm with the hands, leaving feet planted.
+  ctx.translate(0, 11);
+  ctx.rotate(stride * 0.012);
+  ctx.translate(0, -11);
+  if (!dual) ellipse(ctx, -26 - handSwingX, -7 - handSwingY, 7, 7, character.dark);
   if (kicking) ellipse(ctx, 26, -7, 7, 7, character.color);
   ctx.save();
   ctx.scale(1 - Math.abs(side) * 0.22, 1);
@@ -99,15 +108,15 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
     }
   } else {
     const handAngle = facing + (dual ? 0.65 : 0);
-    const handX = Math.cos(handAngle) * 32;
-    const handY = Math.sin(handAngle) * 25 - 8;
+    const handX = Math.cos(handAngle) * 32 + handSwingX;
+    const handY = Math.sin(handAngle) * 25 - 8 + handSwingY;
     ellipse(ctx, handX, handY, 7, 7, character.color);
     if (options.weapon) drawHeldBoomerang(ctx, handX, handY, handAngle, undefined, character.color);
   }
   if (dual) {
     const angle = swing && player.strikeHand === 'left' ? facing + 0.65 : facing - 0.85;
-    const handX = Math.cos(angle) * 34;
-    const handY = Math.sin(angle) * 27 - 8;
+    const handX = Math.cos(angle) * 34 - handSwingX;
+    const handY = Math.sin(angle) * 27 - 8 - handSwingY;
     ellipse(ctx, handX, handY, 7, 7, character.color);
     drawHeldBoomerang(ctx, handX, handY, angle, undefined, character.color);
   }
