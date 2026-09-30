@@ -6,7 +6,7 @@ import { droppedHeight } from './obstacle-bounce.js';
 export function parryWeapon(state, weapon, player, previous = weapon) {
   if (!player.alive || player.fallElapsed != null || player.strikeTime <= 0 || weapon.owner === player.id ||
       weapon.mode !== 'flying'
-      || !inStrikeArc(player, weapon, player.strikeAim, 0, state.brokenObstacles)) return false;
+      || !inStrikeArc(player, weapon, player.strikeAim, 8, state.brokenObstacles)) return false;
   const dx = previous.x - player.x;
   const dy = previous.y - player.y;
   // A rear hit must not become a parry after crossing the player's center.

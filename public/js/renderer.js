@@ -153,7 +153,7 @@ export class ArenaRenderer {
     for (const event of state.events || []) {
       if (event.id<=this.lastEvent) continue;
       this.lastEvent=event.id;
-      if (event.type==='kick' || event.type==='clash' || event.type==='weapon-impact') {
+      if (event.type==='kick' || event.type==='clash' || event.type==='weapon-impact' || event.type==='parry') {
         this.kickImpacts.add(event,time); continue;
       }
       if (event.type==='fall') { this.waterSplashes.add(event,time); continue; }

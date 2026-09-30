@@ -6,6 +6,22 @@ import { retrieveWeapon } from '../shared/retrieval.js';
 import { strike } from '../shared/melee.js';
 import { collides } from '../shared/physics.js';
 import { parryWeapon } from '../shared/parry.js';
+import { RULES } from '../shared/config.js';
+
+test('armed slash blocks the visible edge of a thrown boomerang', () => {
+  const state = setup();
+  state.phase = 'playing';
+  state.remaining = 50;
+  const defender = state.players[1];
+  const weapon = state.projectiles[0];
+  Object.assign(weapon, { x: defender.x - RULES.strikeRange - 5, y: defender.y });
+  strike(state, defender);
+  assert.equal(defender.strikeKind, 'swing');
+  assert.equal(weapon.mode, 'deflected');
+  assert.equal(weapon.sharedPickup, false);
+  assert.equal(state.events.at(-1).type, 'parry');
+  assert.equal(defender.alive, true);
+});
 
 function setup(range=420) {
   const state=createGame([createPlayer('a','Owner','mint'),createPlayer('b','Defender','peach')]);
