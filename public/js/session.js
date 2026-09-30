@@ -5,6 +5,7 @@ import { botLevel } from '/shared/bot-levels.js';
 import { ArenaRenderer } from './renderer.js';
 import { InputController } from './input.js';
 import { SnapshotBuffer } from './snapshot-buffer.js';
+import { localBotMatch } from './local-bot-match.js';
 import { $, showScreen, renderHUD } from './ui.js';
 
 export class GameSession {
@@ -15,6 +16,7 @@ export class GameSession {
     this.input=new InputController($('game'));
     this.input.view=this.renderer.view;
     this.snapshots=new SnapshotBuffer();
+    this.localBots=false;
     this.state=null;
     this.mode=null;
     this.accumulator=0;
@@ -44,13 +46,16 @@ export class GameSession {
   accept(state,host) {
     const first=this.mode!=='online';
     const restart=this.state?.phase==='finished' && state.phase==='countdown';
+    const rematch=state.phase==='countdown' && state.round===1 && this.state && this.state.round!==1;
     this.mode='online';
     this.id=this.connection.id;
     this.host=host;
-    if (first || restart) this.snapshots.reset();
+    if (!first && !restart && !rematch && this.localBots) return;
+    this.localBots=localBotMatch(state.players,this.id);
+    if (first || restart || rematch) this.snapshots.reset();
     this.state=state;
     this.snapshots.push(state,performance.now());
-    if (first || restart) this.activate();
+    if (first || restart || rematch) this.activate();
   }
 
   activate() {
@@ -73,6 +78,7 @@ export class GameSession {
     this.state=null;
     this.input.active=false;
     this.input.reset();
+    this.localBots=false;
     this.snapshots.reset();
   }
 
@@ -91,7 +97,7 @@ export class GameSession {
           if (input.strike && player.strikeCooldown<=0) this.audio.play('dash');
           if (input.dash && player.dashCooldown<=0) this.audio.play('dash');
         }
-        if (this.mode==='practice') {
+        if (this.mode==='practice' || this.localBots) {
           player.input=input;
           updateBots(this.state,timestamp/1000);
           stepGame(this.state,1/30);
@@ -99,7 +105,7 @@ export class GameSession {
         this.accumulator-=1/30;
       }
       let renderState=this.state;
-      if (this.mode==='online') {
+      if (this.mode==='online' && !this.localBots) {
         renderState=this.snapshots.sample(timestamp,this.connection.interpolationDelay()) || this.state;
         const local=this.state.players.find(player=>player.id===this.id);
         renderState={...renderState,players:renderState.players.map(player=>
@@ -114,7 +120,7 @@ export class GameSession {
       this.previousPhase=this.state.phase;
       if (timestamp-this.hudAt>80) {
         renderHUD(this.state,this.id,this.mode==='practice'||this.host===this.id);
-        $('connection-label').textContent=this.mode==='practice'?'LOCAL PLAY':`${this.connection.latency} MS · CONNECTED`;
+        $('connection-label').textContent=this.mode==='practice' || this.localBots?'LOCAL PLAY':`${this.connection.latency} MS · CONNECTED`;
         this.hudAt=timestamp;
       }
     }
