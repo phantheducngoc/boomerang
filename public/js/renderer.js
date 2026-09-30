@@ -9,9 +9,14 @@ import { smoothFacing } from './art/turning.js';
 import { KickImpacts } from './art/kick-impact.js';
 import { WaterSplashes } from './art/water-splash.js';
 import { heldWeaponCount } from '/shared/weapon-inventory.js';
-import { boomerang, ellipse, line } from './art/shapes.js';
+import { boomerang, BOOMERANG_SCALE, ellipse, line } from './art/shapes.js';
 import { applyCamera, keepSpriteUpright, updateCamera, WATER_BLEED } from './camera.js';
 import { boomerangReady, CHARACTERS, RULES, WORLD } from '/shared/config.js';
+
+function characterColor(state, playerId) {
+  const player = state.players.find(item => item.id === playerId);
+  return CHARACTERS.find(item => item.id === player?.character)?.color || '#f8d47d';
+}
 
 export class ArenaRenderer {
   constructor(canvas, preview = false) {
@@ -63,8 +68,8 @@ export class ArenaRenderer {
       const sx=WORLD.width/1000, sy=WORLD.height/660;
       line(ctx,[[213*sx,300*sy],[240*sx,270*sy],[280*sx,266*sy]],'#f7f9e7',3);
       line(ctx,[[740*sx,352*sy],[768*sx,324*sy],[780*sx,291*sy]],'#f7f9e7',3);
-      boomerang(ctx,240*sx,270*sy,time*2,1.1);
-      boomerang(ctx,754*sx,333*sy,-time*2,.9,'#f0b396');
+      boomerang(ctx,240*sx,270*sy,time*2,1.1,characterColor(state,'a'));
+      boomerang(ctx,754*sx,333*sy,-time*2,.9,characterColor(state,'b'));
     }
     const armed=boomerangReady(state);
     if (state.phase !== 'playing') this.weaponTrails.reset();
@@ -114,8 +119,8 @@ export class ArenaRenderer {
       ctx.save();
       ctx.translate(weapon.x,weapon.y-height);
       keepSpriteUpright(ctx);
-      boomerang(ctx,0,0,grounded && (!weapon.recalling || weapon.recallWindup>0)?weapon.angle:time*(deflected?10:22),grounded?.5:.65,
-        grounded && weapon.sharedPickup?'#9ca3aa':deflected||grounded?'#e8ab83':'#f8d47d');
+      boomerang(ctx,0,0,grounded && (!weapon.recalling || weapon.recallWindup>0)?weapon.angle:time*(deflected?10:22),BOOMERANG_SCALE,
+        characterColor(state, weapon.owner));
       ctx.restore();
       if (grounded && (weapon.owner===localId || weapon.sharedPickup)) {
         ctx.save();

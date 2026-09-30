@@ -96,7 +96,7 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
     if (player.strikeKind !== 'kick') {
       line(ctx, [[side * 16, -8], [handX, handY]], character.dark, 7);
       ellipse(ctx, handX, handY, 8, 9, character.color, angle);
-      if (options.weapon) drawHeldBoomerang(ctx, handX, handY, angle, 0.48);
+      if (options.weapon) drawHeldBoomerang(ctx, handX, handY, angle, undefined, character.color);
     }
   } else {
     const handAngle = facing + (dual ? 0.65 : 0);
@@ -104,7 +104,7 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
     const handY = Math.sin(handAngle) * 25 - 8;
     line(ctx, [[side * 18, -8], [handX, handY]], character.dark, 7);
     ellipse(ctx, handX, handY, 7, 8, character.color, facing);
-    if (options.weapon) drawHeldBoomerang(ctx, handX, handY, handAngle, 0.48);
+    if (options.weapon) drawHeldBoomerang(ctx, handX, handY, handAngle, undefined, character.color);
   }
   if (dual) {
     const angle = swing && player.strikeHand === 'left' ? facing + 0.65 : facing - 0.85;
@@ -112,7 +112,7 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
     const handY = Math.sin(angle) * 27 - 8;
     line(ctx, [[side * 12, -9], [handX, handY]], character.dark, 7);
     ellipse(ctx, handX, handY, 7, 8, character.color, angle);
-    drawHeldBoomerang(ctx, handX, handY, angle, 0.48);
+    drawHeldBoomerang(ctx, handX, handY, angle, undefined, character.color);
   }
   ctx.restore();
   if (options.label) {
