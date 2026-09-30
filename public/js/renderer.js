@@ -79,6 +79,10 @@ export class ArenaRenderer {
     const sorted = [...state.players].sort((a,b)=>a.y-b.y);
     for (const player of sorted) {
       const previous = this.positions.get(player.id) || {x:player.x,y:player.y};
+      // Start once per elimination on the render clock, including between network updates.
+      // A living state clears the timestamp for the next round or respawn.
+      if (player.alive) previous.defeatAt = null;
+      else previous.defeatAt ??= time;
       const snap = Math.hypot(previous.x-player.x,previous.y-player.y)>150 || state.phase==='countdown';
       const follow = snap || player.strikeLungeDistance > 0 ? 1 : .45;
       previous.x += (player.x-previous.x)*follow;
@@ -106,7 +110,8 @@ export class ArenaRenderer {
       }
       if (!player.fallen) {
         drawCharacter(ctx,display,time,{mine,weapon:armed ? heldWeaponCount(state,player) : 0,
-          label:!this.preview,scale:this.preview?1.16:1,facing:previous.facing,camera:true});
+          label:!this.preview,scale:this.preview?1.16:1,facing:previous.facing,camera:true,
+          defeatElapsed: previous.defeatAt == null ? 0 : time - previous.defeatAt});
       drawStrike(ctx,display,state.brokenObstacles);
       }
     }

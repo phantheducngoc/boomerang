@@ -6,6 +6,7 @@ import { strikePose } from './strike.js';
 import { frontVisibility, bodyProjection } from './turning.js';
 import { keepSpriteUpright } from '../camera.js';
 import { throwPose, poseThrowingHand } from './throw-pose.js';
+import { drawDefeat } from './defeat.js';
 
 export function drawCharacter(ctx, player, time = 0, options = {}) {
   const character = CHARACTERS.find(item => item.id === player.character) || CHARACTERS[0];
@@ -41,10 +42,9 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
     ctx.fillText('!', 0, -64);
   }
   if (!player.alive) {
-    ellipse(ctx, 0, 5, 20, 10, '#637c5420');
-    ctx.globalAlpha = 0.3;
-    line(ctx, [[-8,-5],[8,9]], character.dark, 5);
-    line(ctx, [[8,-5],[-8,9]], character.dark, 5);
+    // Replace the normal body and face with the cut animation. Callers without a
+    // render timestamp get the settled pose rather than repeatedly showing impact.
+    drawDefeat(ctx, character, options.defeatElapsed ?? 0.8);
     ctx.restore();
     return;
   }
