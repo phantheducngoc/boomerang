@@ -2,6 +2,7 @@ import { WORLD } from '/shared/config.js';
 import { WATER_BLEED } from '../camera.js';
 import { SHORE } from '/shared/islands.js';
 import { TREES } from '/shared/trees.js';
+import { drawHoles } from './holes.js';
 import { ellipse, line } from './shapes.js';
 
 function path(ctx, offsetX = 0, offsetY = 0) {
@@ -128,6 +129,7 @@ export function drawIslandArena(ctx) {
   ctx.fillRect(-WATER_BLEED, -WATER_BLEED, WORLD.width + WATER_BLEED * 2, WORLD.height + WATER_BLEED * 2);
   waterDetails(ctx);
   drawIsland(ctx);
+  drawHoles(ctx);
   for (const item of TREES) tree(ctx, item.x, item.y, item.scale);
   [[470, 130, 58], [520, 145, 48], [900, 640, 55], [780, 640, 46], [640, 660, 50]].forEach(
     ([x, y, height]) => bamboo(ctx, x, y, height));

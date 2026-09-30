@@ -1,3 +1,5 @@
+import { holeAt } from './holes.js';
+
 const SHORE_OUTLINE = [
   [80, 70], [500, 60], [610, 60], [900, 70], [1400, 100],
   [1440, 280], [1340, 385], [1435, 500], [1380, 900],
@@ -29,6 +31,7 @@ function segmentDistance(x, y, a, b) {
 }
 
 export function offIsland(x, y, radius = 0) {
+  if (holeAt(x, y, radius)) return true;
   if (!insidePolygon(x, y)) return true;
   if (radius <= 0) return false;
   return SHORE.some((point, index) =>
@@ -36,6 +39,11 @@ export function offIsland(x, y, radius = 0) {
 }
 
 export function outwardDirection(x, y) {
+  const hole = holeAt(x, y);
+  if (hole) {
+    const length = Math.hypot(hole.x - x, hole.y - y);
+    return length ? { x: (hole.x - x) / length, y: (hole.y - y) / length } : { x: 0, y: 0 };
+  }
   let closest = null;
   let best = Infinity;
   for (let i = 0; i < SHORE.length; i++) {
