@@ -18,7 +18,7 @@ export function throwWeapon(state, player, range = RULES.projectileSpeed * RULES
   state.projectiles.push({ id: ++state.sequence, owner: player.id,
     x: player.x, y: player.y, safeX: player.x, safeY: player.y,
     angle: player.aim, launchAim: player.aim, age: 0, returning: false, mode: 'flying', sharedPickup: false,
-    range, traveled: 0, power, speed, maxSpeed: speed + 100 + 170 * power });
+    range, traveled: 0, power, speed, maxSpeed: speed + 60 + 100 * power });
 }
 
 function updateFlight(state, weapon, owner, dt) {
@@ -74,7 +74,7 @@ function updateFlight(state, weapon, owner, dt) {
     }
     return false;
   }
-  return weapon.age < 4;
+  return weapon.age < 8;
 }
 
 export function updateWeapons(state, dt) {

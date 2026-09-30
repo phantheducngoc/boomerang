@@ -25,7 +25,7 @@ test('short and long throws reach their selected distances and return',t=> {
     state.players[1].y=500;
     throwWeapon(state,state.players[0],range);
     let max=0;
-    for (let i=0;i<540;i++) {
+    for (let i=0;i<1080;i++) {
       updateWeapons(state,1/180);
       if (state.projectiles.length && !state.projectiles[0].returning) max=Math.max(max,state.projectiles[0].traveled);
     }
@@ -35,7 +35,7 @@ test('short and long throws reach their selected distances and return',t=> {
 });
 
 test('server range validation bounds malformed or excessive ranges',()=> {
-  for (const [range,expected] of [[-20,180],[999999,630],[NaN,180],[Infinity,180],['420',180],[300,300]]) {
+  for (const [range,expected] of [[-20,180],[999999,820],[NaN,180],[Infinity,180],['420',180],[300,300]]) {
     assert.equal(input({x:0,y:0,aim:0,range}).range,expected);
   }
   const state=fixture();

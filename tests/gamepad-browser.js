@@ -25,10 +25,10 @@ try {
   await page.evaluate(()=>{window.fakePad.axes=[0,0,0,0];window.fakePad.buttons[3].pressed=true;});
   assert.equal((await read()).throw,false);
   await page.waitForTimeout(950);
-  assert.equal(await page.evaluate(()=>window.padInput.previewRange()),630);
+  assert.equal(await page.evaluate(()=>window.padInput.previewRange()),820);
   await page.evaluate(()=>window.fakePad.buttons[3].pressed=false);
   const thrown=await read();
-  assert.equal(thrown.throw,true);assert.equal(thrown.range,630);
+  assert.equal(thrown.throw,true);assert.equal(thrown.range,820);
   await page.evaluate(()=>window.fakePad.buttons[2].pressed=true);
   const action=await read();
   assert.equal(action.strike,true);

@@ -1,4 +1,4 @@
-import { activeObstacles, clamp, collides } from './physics.js';
+import { activeObstacles, clamp, hitsObstacle as collides } from './physics.js';
 
 export function recallStep(weapon, owner, travel, broken = []) {
   if (weapon.slideTarget) {

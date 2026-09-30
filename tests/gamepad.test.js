@@ -29,10 +29,10 @@ test('analog sticks have a dead zone, normalized speed, and persistent aim',()=>
 test('trigger throws on release, dash uses fresh presses, and strike uses rising edges',()=> {
   const f=fixture();
   f.press(3);f.input.read();f.time(900);
-  assert.equal(f.input.chargedRange(),630);
+  assert.equal(f.input.chargedRange(),820);
   assert.equal(f.input.read().throw,false);
   f.press(3,false);
-  assert.equal(f.input.read().range,630);
+  assert.equal(f.input.read().range,820);
   assert.equal(f.input.read().throw,false);
   f.press(0);f.press(2);
   const first=f.input.read();

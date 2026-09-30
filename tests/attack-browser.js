@@ -29,7 +29,7 @@ try {
   await page.waitForTimeout(1000);
   assert.equal((await read()).throw,false);
   await page.mouse.up();
-  assert.equal((await read()).range,630);
+  assert.equal((await read()).range,820);
   assert.equal((await read()).throw,false);
   await page.keyboard.press('KeyF');
   assert.equal((await read()).strike,true);

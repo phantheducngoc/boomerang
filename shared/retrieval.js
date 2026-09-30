@@ -3,9 +3,13 @@ import { collides, distance } from './physics.js';
 
 export function recallWeapon(state, player) {
   if (!player.alive) return false;
-  const weapon = state.projectiles.find(item => item.owner === player.id && item.mode === 'grounded');
+  const weapon = state.projectiles.find(item => item.owner === player.id
+    && !item.recalling && !item.sharedPickup
+    && (item.mode === 'grounded' || (item.mode === 'flying' && item.departed)));
   if (!weapon || weapon.recalling || weapon.sharedPickup) return false;
-  Object.assign(weapon, { mode: 'grounded', recallWindup: RULES.recallWindup, returning: true, recalling: true, loopReturn: false, sharedPickup: false, departed: true, age: 0,
+  const airborne = weapon.mode === 'flying';
+  Object.assign(weapon, { mode: airborne ? 'flying' : 'grounded', recallWindup: airborne ? 0 : RULES.recallWindup,
+    returning: true, recalling: true, loopReturn: false, sharedPickup: false, departed: true, age: 0,
     safeX: weapon.x, safeY: weapon.y, speed: RULES.recallStartSpeed, pullTime: 0, slideTarget: null, blocked: false,
     maxSpeed: RULES.projectileSpeed, power: 0 });
   return true;

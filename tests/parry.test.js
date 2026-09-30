@@ -43,6 +43,8 @@ test('striking outbound or returning weapons changes direction and cancels homin
 
 test('an active swing intercepts a fast projectile before body contact',()=> {
   const state=setup();
+  // Exercise a fast crossing explicitly, independent of normal throw-speed tuning.
+  Object.assign(state.projectiles[0], { speed: 780, maxSpeed: 1000 });
   state.players[1].x=260;
   strike(state,state.players[1]);
   assert.equal(state.projectiles[0].mode,'flying');
