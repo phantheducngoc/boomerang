@@ -29,9 +29,6 @@ export class TouchInput {
 
   setMove(x, y) {
     this.move = { x, y };
-  }
-
-  setAim(x, y) {
     if (x || y) this.aim = Math.atan2(y, x);
   }
 

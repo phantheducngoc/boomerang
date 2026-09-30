@@ -28,20 +28,17 @@ export class TouchControls {
 
   bindStick(stick) {
     const knob = stick.querySelector('.touch-knob');
-    const aim = stick.dataset.stick === 'aim';
     const place = event => {
       const box = stick.getBoundingClientRect();
       const radius = Math.min(box.width, box.height) / 2 - 8;
       const vector = clampStick(event.clientX - box.left - box.width / 2, event.clientY - box.top - box.height / 2, radius);
       knob.style.transform = `translate(${vector.dx}px, ${vector.dy}px)`;
-      if (aim) this.input.setAim(vector.x, vector.y);
-      else this.input.setMove(vector.x, vector.y);
+      this.input.setMove(vector.x, vector.y);
       this.input.touching = true;
     };
     const end = () => {
       knob.style.transform = '';
-      if (aim) this.input.setAim(0, 0);
-      else this.input.setMove(0, 0);
+      this.input.setMove(0, 0);
       this.input.touching = this.pointerDown();
     };
     this.track(stick, place, end);

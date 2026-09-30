@@ -36,9 +36,14 @@ test('dash and strike fire once per press', () => {
   assert.equal(input.read().dash, false);
 });
 
-test('aim stays where the stick was released', () => {
+test('movement aims and the direction stays after releasing the stick', () => {
   const input = new TouchInput();
-  input.setAim(0, -1);
-  input.setAim(0, 0);
+  input.setMove(0, -1);
+  let result = input.read();
+  assert.equal(result.y, -1);
+  assert.equal(result.aim, -Math.PI / 2);
+  input.setMove(0, 0);
+  result = input.read();
+  assert.equal(result.y, 0);
   assert.equal(input.read().aim, -Math.PI / 2);
 });
