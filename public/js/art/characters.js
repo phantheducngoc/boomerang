@@ -16,7 +16,7 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
   const throwing = throwPose(player, Number(options.weapon) || 0);
   const aimFacing = falling ? Math.PI / 2 : swing ? player.strikeAim : throwing?.releasing
     ? throwing.aim : options.facing ?? player.aim ?? player.facing ?? Math.PI / 2;
-  const facing = aimFacing + (throwing?.bodyTurn ?? 0);
+  const facing = aimFacing + (throwing?.bodyTurn ?? 0) + (swing?.bodyTurn ?? 0);
   const side = Math.cos(facing);
   const depth = Math.sin(facing);
   const front = frontVisibility(facing);
@@ -24,7 +24,7 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
   const speed = Math.hypot(player.motionX ?? 0, player.motionY ?? 0);
   const stride = options.still || falling || swing || throwing || !player.alive ? 0
     : Math.sin(time * 14) * Math.min(1.5, speed / RULES.speed) * 7;
-  const hands = handPoses(facing, stride, player.strikeKind === 'kick' ? null : swing, player.strikeHand);
+  const hands = handPoses(facing, stride, player.strikeKind === 'kick' ? null : swing, player.strikeHand, aimFacing);
   poseThrowingHand(hands, throwing, aimFacing);
   ctx.save();
   ctx.translate(player.x, player.y);
@@ -57,7 +57,7 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
     ctx.stroke();
   }
   ctx.translate(0, bob);
-  if (swing) {
+  if (swing && player.strikeKind === 'kick') {
     ctx.rotate(Math.cos(facing) * swing.punch * 0.012);
   }
   const kicking = swing && player.strikeKind === 'kick';

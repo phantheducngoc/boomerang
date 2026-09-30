@@ -1,12 +1,12 @@
 import { ellipse } from './shapes.js';
 import { drawHeldBoomerang } from './held-boomerang.js';
 
-export function handPoses(facing, stride, swing, strikeHand = 'right') {
+export function handPoses(facing, stride, swing, strikeHand = 'right', strikeAim = facing) {
   return ['right', 'left'].map(hand => {
     const sign = hand === 'right' ? 1 : -1;
     const angle = facing + sign * Math.PI / 2;
     if (swing && hand === strikeHand) {
-      const attackAngle = facing + swing.angle;
+      const attackAngle = strikeAim + swing.angle;
       return { hand, x: Math.cos(attackAngle) * 37,
         y: Math.sin(attackAngle) * 29 - 5, angle: attackAngle, behind: false };
     }

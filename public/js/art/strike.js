@@ -1,14 +1,18 @@
-import { RULES } from '/shared/config.js';
-import { strikeReach } from '/shared/strike-geometry.js';
+import { RULES } from '../../../shared/config.js';
+import { strikeReach } from '../../../shared/strike-geometry.js';
 
 export function strikePose(player) {
   if (!player.alive || !(player.strikeTime > 0)) return null;
   const progress = Math.max(0, Math.min(1, 1 - player.strikeTime / RULES.strikeTime));
   const sweep = 1 - (1 - progress) ** 3;
-  const direction = player.strikeHand === 'left' ? -1 : 1;
+  // Right hand starts on the positive-angle side and sweeps across to the left.
+  const direction = player.strikeHand === 'left' ? 1 : -1;
+  const settle = Math.max(0, (progress - 0.75) / 0.25);
   return {
     progress,
     direction,
+    bodyTurn: player.strikeKind === 'kick' ? 0
+      : direction * Math.PI / 6 * (2 * sweep - 1) * (1 - settle * settle * (3 - 2 * settle)),
     angle: direction * (-RULES.strikeHalfAngle + sweep * RULES.strikeHalfAngle * 2),
     punch: Math.sin(Math.PI * progress) * 8,
     opacity: Math.min(1, (1 - progress) * 2)
