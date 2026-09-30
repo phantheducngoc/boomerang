@@ -8,6 +8,7 @@ export class TouchControls {
   constructor(root = document.querySelector('#touch-controls')) {
     this.root = root;
     this.input = new TouchInput();
+    this.cancelPointers = [];
     this.enabled = Boolean(root) && touchPlayAvailable();
     if (!this.enabled) return;
     root.hidden = false;
@@ -17,6 +18,7 @@ export class TouchControls {
   }
 
   reset() {
+    this.cancelPointers.forEach(cancel => cancel());
     this.input.reset();
     this.root?.querySelectorAll('.touch-knob').forEach(knob => { knob.style.transform = ''; });
     this.root?.querySelectorAll('.is-held').forEach(button => button.classList.remove('is-held'));
@@ -60,16 +62,28 @@ export class TouchControls {
   }
 
   track(element, onMove, onEnd) {
+    let activePointer = null;
+    const finish = event => {
+      if (activePointer === null) return;
+      if (event?.pointerId != null && event.pointerId !== activePointer) return;
+      activePointer = null;
+      onEnd();
+    };
     element.addEventListener('pointerdown', event => {
+      if (activePointer !== null) return;
       event.preventDefault();
+      activePointer = event.pointerId;
       onMove(event);
       try { element.setPointerCapture(event.pointerId); } catch { /* The press still counts if capture is unavailable. */ }
     });
     element.addEventListener('pointermove', event => {
-      if (element.hasPointerCapture(event.pointerId)) onMove(event);
+      if (event.pointerId === activePointer) onMove(event);
     });
-    element.addEventListener('pointerup', onEnd);
-    element.addEventListener('pointercancel', onEnd);
+    element.addEventListener('pointerup', finish);
+    element.addEventListener('pointercancel', finish);
+    element.addEventListener('lostpointercapture', finish);
+    window.addEventListener('blur', () => finish());
+    this.cancelPointers.push(() => finish());
   }
 
   pointerDown() {

@@ -22,6 +22,7 @@ export class TouchInput {
   reset() {
     this.chargeStart = null;
     this.previous = { throw: false, dash: false, strike: false };
+    this.held = { throw: false, dash: false, strike: false };
     this.armed = false;
     this.move = { x: 0, y: 0 };
     this.touching = false;

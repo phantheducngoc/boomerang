@@ -5,6 +5,8 @@ export class RoomConnection {
     this.socket=null;
     this.id=null;
     this.latency=0;
+    this.jitter=0;
+    this.lastLatency=null;
   }
 
   async connect() {
@@ -25,7 +27,15 @@ export class RoomConnection {
           clearTimeout(timeout);
           this.heartbeat=setInterval(()=>this.send({type:'ping',at:Date.now()}),2000);
           resolve();
-        } else if (message.type==='pong') this.latency=Date.now()-message.at;
+        } else if (message.type==='pong') {
+          const sample=Date.now()-message.at;
+          if (this.lastLatency!==null) {
+            const variation=Math.abs(sample-this.lastLatency);
+            this.jitter=this.jitter*.75+variation*.25;
+          }
+          this.lastLatency=sample;
+          this.latency=Math.round(this.latency?this.latency*.75+sample*.25:sample);
+        }
         else this.onMessage(message);
       };
       socket.onerror=()=> {
@@ -45,9 +55,16 @@ export class RoomConnection {
     if (this.socket?.readyState===WebSocket.OPEN) this.socket.send(JSON.stringify(message));
   }
 
+  interpolationDelay() {
+    return Math.min(160,Math.max(67,67+this.jitter*2));
+  }
+
   close() {
     clearInterval(this.heartbeat);
     if (this.socket) { this.socket.onclose=null; this.socket.close(); this.socket=null; }
     this.id=null;
+    this.latency=0;
+    this.lastLatency=null;
+    this.jitter=0;
   }
 }

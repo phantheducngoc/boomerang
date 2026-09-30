@@ -47,3 +47,15 @@ test('movement aims and the direction stays after releasing the stick', () => {
   assert.equal(result.y, 0);
   assert.equal(input.read().aim, -Math.PI / 2);
 });
+
+test('reset releases every virtual control', () => {
+  const input = new TouchInput();
+  input.setMove(1, 0);
+  input.setHeld('throw', true);
+  input.setHeld('dash', true);
+  input.reset();
+  const reset = input.read();
+  assert.equal(reset.x, 0);
+  assert.equal(reset.charging, false);
+  assert.equal(reset.dash, false);
+});
