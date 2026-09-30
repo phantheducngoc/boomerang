@@ -1,7 +1,9 @@
 import { randomInt } from 'node:crypto';
 import { createGame, createPlayer, stepGame } from '../shared/game.js';
 import { RULES, emptyInput } from '../shared/config.js';
+import { updateBots } from '../shared/bots.js';
 import { profile, input } from './validation.js';
+import { addBot, removeBot, seatCount } from './room-bots.js';
 
 export class RoomService {
   constructor(send) {
@@ -15,7 +17,8 @@ export class RoomService {
 
   lobby(room) {
     this.broadcast(room, { type: 'lobby', code: room.code, host: room.host,
-      players: [...room.members.values()].map(member => member.player) });
+      players: [...room.members.values()].map(member => member.player),
+      bots: room.bots });
   }
 
   leave(client) {
@@ -43,14 +46,14 @@ export class RoomService {
         let code;
         do { code = Array.from({ length: 5 }, () => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[randomInt(32)]).join(''); }
         while (this.rooms.has(code));
-        room = { code, host: client.id, members: new Map(), game: null };
+        room = { code, host: client.id, members: new Map(), bots: [], nextBot: 1, botTime: 0, game: null };
         this.rooms.set(code, room);
       } else {
         const code = typeof message.code === 'string' ? message.code.trim().toUpperCase() : '';
         room = this.rooms.get(code);
         if (!room) throw new Error('That room was not found. Check the code and try again.');
         if (room.game) throw new Error('This match has already started. Join after it ends.');
-        if (room.members.size >= RULES.maxPlayers) throw new Error('This room is full (6 players).');
+        if (seatCount(room) >= RULES.maxPlayers) throw new Error('This room is full (6 players).');
       }
       const details = profile(message);
       room.members.set(client.id, { client, lastInput: Date.now(),
@@ -61,14 +64,23 @@ export class RoomService {
     }
     const room = this.rooms.get(client.room);
     if (!room) throw new Error('Join a room first.');
+    if (message.type === 'add-bot' || message.type === 'remove-bot') {
+      if (room.host !== client.id) throw new Error('Only the room host can change bots.');
+      if (message.type === 'add-bot') addBot(room, message.difficulty);
+      else removeBot(room, message.id);
+      this.lobby(room);
+      return;
+    }
     if (message.type === 'start' || message.type === 'rematch') {
       if (room.host !== client.id) throw new Error('Only the room host can start the match.');
-      if (room.members.size < 2) throw new Error('Invite at least one friend to start.');
+      if (seatCount(room) < 2) throw new Error('Invite a friend or add a bot to start.');
       if (room.game && room.game.phase !== 'finished') throw new Error('A match is already running.');
-      room.game = createGame([...room.members.values()].map(member => {
+      for (const bot of room.bots) bot.score = 0;
+      const humans = [...room.members.values()].map(member => {
         member.player.score = 0;
         return member.player;
-      }));
+      });
+      room.game = createGame([...humans, ...room.bots]);
       this.broadcast(room, { type: 'state', state: room.game });
     } else if (message.type === 'input' && room.game) {
       const next = input(message);
@@ -88,6 +100,8 @@ export class RoomService {
       for (const member of room.members.values()) {
         if (Date.now() - member.lastInput > 250) member.player.input = emptyInput();
       }
+      room.botTime += dt;
+      updateBots(room.game, room.botTime);
       stepGame(room.game, dt);
       this.broadcast(room, { type: 'state', state: room.game });
     }

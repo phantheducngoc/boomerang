@@ -36,6 +36,7 @@ try {
   const saved=JSON.parse(localStorage.getItem('boomerang-profile')||'null');
   if (saved) {
     $('bot-difficulty').value=botLevel(saved.difficulty);
+    $('room-bot-difficulty').value=botLevel(saved.difficulty);
     $('practice-invincible').checked=saved.invincible===true;
     $('player-name').value=String(saved.name||'Player One').slice(0,18);
     if (CHARACTERS.some(item=>item.id===saved.character)) character=saved.character;
@@ -117,6 +118,11 @@ $('practice-button').addEventListener('click',()=> { connection.close(); session
 $('leave-room').addEventListener('click',leave);
 $('leave-game').addEventListener('click',leave);
 $('start-button').addEventListener('click',()=>connection.send({type:'start'}));
+$('add-bot').addEventListener('click',()=>connection.send({type:'add-bot',difficulty:botLevel($('room-bot-difficulty').value)}));
+$('room-players').addEventListener('click',event=> {
+  const button=event.target.closest('[data-bot]');
+  if (button) connection.send({type:'remove-bot',id:button.dataset.bot});
+});
 $('rematch-button').addEventListener('click',()=> {
   if (session.mode==='practice') session.startPractice(profile());
   else connection.send({type:'rematch'});

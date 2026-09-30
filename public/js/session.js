@@ -61,7 +61,10 @@ export class GameSession {
     this.input.active=true;
     showScreen('game-screen');
     $('game').focus({preventScroll:true});
-    $('match-label').textContent=this.mode==='practice'?`SOLO PRACTICE · ${this.difficulty.toUpperCase()} · 3 BOTS`:'PRIVATE GARDEN · FIRST TO 5';
+    const bots=this.state.players.filter(player=>player.bot).length;
+    $('match-label').textContent=this.mode==='practice'
+      ? `SOLO PRACTICE · ${this.difficulty.toUpperCase()} · 3 BOTS`
+      : `PRIVATE GARDEN · FIRST TO 5${bots?` · ${bots} BOT${bots===1?'':'S'}`:''}`;
     if (this.mode==='practice' && this.profile.invincible) $('match-label').textContent+=' · NO DEATH';
   }
 

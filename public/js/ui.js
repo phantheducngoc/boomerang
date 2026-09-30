@@ -13,16 +13,25 @@ export function showScreen(screen) {
   ['home','room-screen','game-screen'].forEach(id=>$(id).hidden=id!==screen);
   window.scrollTo(0,0);
 }
+function lobbyCard(player, room, id, host) {
+  const character=CHARACTERS.find(item=>item.id===player.character) || CHARACTERS[0];
+  const role=player.bot?`BOT · ${String(player.difficulty||'medium').toUpperCase()}`:player.id===room.host?'ROOM HOST':'READY TO RUMBLE';
+  const remove=host && player.bot?`<button type="button" class="text-button bot-remove" data-bot="${escapeHTML(player.id)}">Remove</button>`:'';
+  return `<div class="room-player"><div class="avatar-dot" style="background:${character.color}">•ᴗ•</div><strong>${escapeHTML(player.name)}${player.id===id?' (you)':''}</strong><small>${role}</small>${remove}</div>`;
+}
+
 export function renderLobby(room, id) {
+  const roster=[...room.players, ...(room.bots || [])];
   $('copy-code').innerHTML=`${escapeHTML(room.code)} <span>⧉</span>`;
-  $('room-players').innerHTML=room.players.map(player=> {
-    const character=CHARACTERS.find(item=>item.id===player.character) || CHARACTERS[0];
-    return `<div class="room-player"><div class="avatar-dot" style="background:${character.color}">•ᴗ•</div><strong>${escapeHTML(player.name)}${player.id===id?' (you)':''}</strong><small>${player.id===room.host?'ROOM HOST':'READY TO RUMBLE'}</small></div>`;
-  }).join('');
   const host=room.host===id;
-  $('start-button').disabled=!host || room.players.length<2;
+  $('room-players').innerHTML=roster.map(player=>lobbyCard(player, room, id, host)).join('');
+  $('bot-controls').hidden=!host;
+  $('add-bot').disabled=roster.length>=6;
+  $('start-button').disabled=!host || roster.length<2;
   $('start-button').textContent=host?'Let it fly →':'Waiting for the host…';
-  $('room-status').textContent=`${room.players.length} / 6 legends here · ${room.players.length<2?'Invite a friend to start.':'First to 5 round wins.'}`;
+  const bots=(room.bots || []).length;
+  const need=roster.length<2?'Invite a friend or add a bot to start.':'First to 5 round wins.';
+  $('room-status').textContent=`${roster.length} / 6 legends here${bots?` · ${bots} bot${bots===1?'':'s'}`:''} · ${need}`;
 }
 
 export function renderHUD(state,id,host) {

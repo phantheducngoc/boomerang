@@ -56,6 +56,41 @@ test('server rejects invalid input, clamps speed, and prevents stuck movement',(
   assert.equal(member.player.input.throw,false);
 });
 
+test('the host can fill a multiplayer room with bots',()=> {
+  const {rooms,host,code,messages}=fixture();
+  const guest={id:'guest'};
+  rooms.handle(guest,{type:'join',code,name:'Guest',character:'peach'});
+  assert.throws(()=>rooms.handle(guest,{type:'add-bot',difficulty:'hard'}),/host/);
+  rooms.handle(host,{type:'add-bot',difficulty:'hard'});
+  rooms.handle(host,{type:'add-bot',difficulty:'nope'});
+  const lobby=messages.at(-1);
+  assert.equal(lobby.bots.length,2);
+  assert.equal(lobby.bots[0].difficulty,'hard');
+  assert.equal(lobby.bots[1].difficulty,'medium');
+  assert.equal(lobby.bots[0].character!=='mint' && lobby.bots[0].character!=='peach',true);
+  rooms.handle(host,{type:'remove-bot',id:lobby.bots[1].id});
+  rooms.handle(host,{type:'start'});
+  const game=rooms.rooms.get(code).game;
+  assert.equal(game.players.length,3);
+  assert.equal(game.players.filter(player=>player.bot).length,1);
+  assert.throws(()=>rooms.handle(host,{type:'add-bot'}),/before the match/);
+  game.phase='playing';
+  game.remaining=50;
+  rooms.tick(1/30);
+  const bot=game.players.find(player=>player.bot);
+  assert.ok(bot.input.x || bot.input.y);
+});
+
+test('bots count toward the six-player room limit',()=> {
+  const {rooms,host,code}=fixture();
+  for (let i=0;i<5;i++) rooms.handle(host,{type:'add-bot',difficulty:'easy'});
+  assert.throws(()=>rooms.handle(host,{type:'add-bot'}),/full/);
+  assert.throws(()=>rooms.handle({id:'guest'},{type:'join',code}),/full/);
+  rooms.handle(host,{type:'remove-bot',id:'bot1'});
+  rooms.handle({id:'guest'},{type:'join',code,name:'Guest',character:'gold'});
+  assert.equal(rooms.rooms.get(code).members.size+rooms.rooms.get(code).bots.length,6);
+});
+
 test('actions survive multiple input messages between server ticks',()=> {
   const {rooms,host,code}=fixture();
   rooms.handle({id:'guest'},{type:'join',code});
