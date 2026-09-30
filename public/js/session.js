@@ -4,7 +4,6 @@ import { updateBots } from '/shared/bots.js';
 import { botLevel } from '/shared/bot-levels.js';
 import { ArenaRenderer } from './renderer.js';
 import { InputController } from './input.js';
-import { LocalPrediction } from './local-prediction.js';
 import { SnapshotBuffer } from './snapshot-buffer.js';
 import { $, showScreen, renderHUD } from './ui.js';
 
@@ -15,9 +14,7 @@ export class GameSession {
     this.renderer=new ArenaRenderer($('game'));
     this.input=new InputController($('game'));
     this.input.view=this.renderer.view;
-    this.prediction=new LocalPrediction();
     this.snapshots=new SnapshotBuffer();
-    this.inputSequence=0;
     this.state=null;
     this.mode=null;
     this.accumulator=0;
@@ -50,14 +47,9 @@ export class GameSession {
     this.mode='online';
     this.id=this.connection.id;
     this.host=host;
-    if (first || restart) {
-      this.snapshots.reset();
-      this.inputSequence=state.players.find(player=>player.id===this.id)?.inputSequence ?? 0;
-      this.prediction.reset();
-    }
+    if (first || restart) this.snapshots.reset();
     this.state=state;
     this.snapshots.push(state,performance.now());
-    this.prediction.reconcile(state.players.find(player=>player.id===this.id),state);
     if (first || restart) this.activate();
   }
 
@@ -78,7 +70,6 @@ export class GameSession {
     this.state=null;
     this.input.active=false;
     this.input.reset();
-    this.prediction.reset();
     this.snapshots.reset();
   }
 
@@ -101,19 +92,15 @@ export class GameSession {
           player.input=input;
           updateBots(this.state,timestamp/1000);
           stepGame(this.state,1/30);
-        } else {
-          const sequence=++this.inputSequence;
-          if (this.state.phase==='playing' && player?.alive) {
-            this.prediction.record(sequence,input,this.state,this.id,1/30);
-          }
-          this.connection.send({type:'input',...input,sequence});
-        }
+        } else this.connection.send({type:'input',...input});
         this.accumulator-=1/30;
       }
       let renderState=this.state;
       if (this.mode==='online') {
         renderState=this.snapshots.sample(timestamp,this.connection.interpolationDelay()) || this.state;
-        renderState=this.prediction.apply(renderState,this.state,this.id);
+        const local=this.state.players.find(player=>player.id===this.id);
+        renderState={...renderState,players:renderState.players.map(player=>
+          player.id===this.id && local ? local : player)};
       }
       this.renderer.render(renderState,timestamp/1000,this.id,this.aim,this.input.previewRange());
       if (this.state.events.some(event=>event.id>this.lastEvent)) {

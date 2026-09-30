@@ -53,7 +53,7 @@ export class RoomService {
         if (room.members.size >= RULES.maxPlayers) throw new Error('This room is full (6 players).');
       }
       const details = profile(message);
-      room.members.set(client.id, { client, lastInput: Date.now(), pendingInputSequence: 0,
+      room.members.set(client.id, { client, lastInput: Date.now(),
         player: createPlayer(client.id, details.name, details.character) });
       client.room = room.code;
       this.lobby(room);
@@ -74,12 +74,10 @@ export class RoomService {
       const next = input(message);
       if (!next) return;
       const member = room.members.get(client.id);
-      const { sequence, ...nextInput } = next;
       const previous = member.player.input;
-      member.player.input = { ...nextInput, throw: previous.throw || nextInput.throw, dash: previous.dash || nextInput.dash,
-        retrieve: previous.retrieve || nextInput.retrieve, strike: previous.strike || nextInput.strike,
-        range: previous.throw ? previous.range : nextInput.range };
-      member.pendingInputSequence = sequence;
+      member.player.input = { ...next, throw: previous.throw || next.throw, dash: previous.dash || next.dash,
+        retrieve: previous.retrieve || next.retrieve, strike: previous.strike || next.strike,
+        range: previous.throw ? previous.range : next.range };
       member.lastInput = Date.now();
     }
   }
@@ -91,9 +89,6 @@ export class RoomService {
         if (Date.now() - member.lastInput > 250) member.player.input = emptyInput();
       }
       stepGame(room.game, dt);
-      for (const member of room.members.values()) {
-        member.player.inputSequence = member.pendingInputSequence;
-      }
       this.broadcast(room, { type: 'state', state: room.game });
     }
   }

@@ -42,7 +42,7 @@ test('disconnect cancels a match, transfers host, and cleans up empty rooms',()=
 test('server rejects invalid input, clamps speed, and prevents stuck movement',()=> {
   assert.equal(input({x:Infinity,y:0,aim:0}),null);
   assert.equal(input({x:'1',y:0,aim:0}),null);
-  assert.deepEqual(input({x:100,y:-100,aim:0,throw:'true'}),{x:1,y:-1,aim:0,throw:false,dash:false,strike:false,retrieve:false,recall:false,charging:false,range:180,sequence:0});
+  assert.deepEqual(input({x:100,y:-100,aim:0,throw:'true'}),{x:1,y:-1,aim:0,throw:false,dash:false,strike:false,retrieve:false,recall:false,charging:false,range:180});
   assert.equal(profile({name:'x'.repeat(100),character:'unknown'}).name.length,18);
   assert.equal(profile({character:'unknown'}).character,'mint');
   const {rooms,host,code}=fixture();
@@ -60,10 +60,7 @@ test('actions survive multiple input messages between server ticks',()=> {
   const {rooms,host,code}=fixture();
   rooms.handle({id:'guest'},{type:'join',code});
   rooms.handle(host,{type:'start'});
-  rooms.handle(host,{type:'input',x:0,y:0,aim:0,throw:true,sequence:4});
-  rooms.handle(host,{type:'input',x:0,y:0,aim:0,throw:false,sequence:5});
-  const member=rooms.rooms.get(code).members.get(host.id);
-  assert.equal(member.player.input.throw,true);
-  rooms.tick(1/30);
-  assert.equal(member.player.inputSequence,5);
+  rooms.handle(host,{type:'input',x:0,y:0,aim:0,throw:true});
+  rooms.handle(host,{type:'input',x:0,y:0,aim:0,throw:false});
+  assert.equal(rooms.rooms.get(code).members.get(host.id).player.input.throw,true);
 });
