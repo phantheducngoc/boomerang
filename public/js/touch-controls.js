@@ -1,7 +1,8 @@
 import { clampStick, TouchInput } from './touch-input.js';
 
 export function touchPlayAvailable() {
-  return navigator.maxTouchPoints > 0 || window.matchMedia('(pointer: coarse)').matches;
+  const forced = new URLSearchParams(window.location.search).get('touch') === '1';
+  return forced || navigator.maxTouchPoints > 0 || window.matchMedia('(pointer: coarse)').matches;
 }
 
 export class TouchControls {
