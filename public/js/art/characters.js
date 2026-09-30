@@ -1,9 +1,9 @@
 import { CHARACTERS, RULES } from '/shared/config.js';
 import { ellipse, line } from './shapes.js';
 import { drawHeldBoomerang } from './held-boomerang.js';
-import { drawFoodBody, foodFaceOffset } from './food.js';
+import { drawTurningFood, foodFaceOffset, foodThickness } from './food.js';
 import { strikePose } from './strike.js';
-import { frontVisibility } from './turning.js';
+import { frontVisibility, bodyProjection } from './turning.js';
 import { keepSpriteUpright } from '../camera.js';
 
 export function drawCharacter(ctx, player, time = 0, options = {}) {
@@ -66,15 +66,11 @@ export function drawCharacter(ctx, player, time = 0, options = {}) {
   ctx.translate(0, -11);
   if (!dual) ellipse(ctx, -26 - handSwingX, -7 - handSwingY, 7, 7, character.dark);
   if (kicking) ellipse(ctx, 26, -7, 7, 7, character.color);
+  drawTurningFood(ctx, character, facing);
   ctx.save();
-  ctx.scale(1 - Math.abs(side) * 0.22, 1);
-  drawFoodBody(ctx, character, true);
-  ctx.globalAlpha *= front;
-  drawFoodBody(ctx, character, false);
-  ctx.restore();
-  ctx.save();
-  ctx.translate(side * 17, depth * 5 + foodFaceOffset(character.id));
-  ctx.scale(1 - Math.abs(side) * 0.4, 1);
+  const profile = bodyProjection(facing, foodThickness(character.id));
+  ctx.translate(profile.faceX, depth * 5 + foodFaceOffset(character.id));
+  ctx.scale(Math.max(0.001, profile.width), 1);
   ctx.globalAlpha *= front;
   if (front > 0) {
     const look = side * 2;

@@ -1,4 +1,5 @@
 import { ellipse, rounded, line } from './shapes.js';
+import { drawBodyVolume, drawTurningVolume } from './body-volume.js';
 
 function path(ctx, points, fill) {
   ctx.beginPath();
@@ -133,9 +134,20 @@ function sushi(ctx, back) {
 
 const bodies = { mint:avocado, gold:banana, blue:milk, peach:watermelon, rose:donut, lilac:sushi };
 
+const thicknesses = { mint: 8.8, gold: 5.9, blue: 10.8, peach: 5.9, rose: 6.4, lilac: 11.8 };
+
+export const foodThickness = id => thicknesses[id] ?? 24;
+
+export function drawTurningFood(ctx, character, angle) {
+  drawTurningVolume(ctx, character.id, bodies[character.id] || avocado,
+    angle, foodThickness(character.id));
+}
+
 export function drawFoodBody(ctx, character, back) {
   ctx.save();
-  (bodies[character.id] || avocado)(ctx, back);
+  drawBodyVolume(ctx, `${character.id}:${back}`, surface => {
+    (bodies[character.id] || avocado)(surface, back);
+  });
   ctx.restore();
 }
 

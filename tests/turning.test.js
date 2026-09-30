@@ -1,11 +1,24 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { smoothFacing, frontVisibility } from '../public/js/art/turning.js';
+import { smoothFacing, frontVisibility, bodyProjection } from '../public/js/art/turning.js';
 
 test('turning takes the short route across the angle boundary',()=> {
   const current=Math.PI-0.05;
   const next=smoothFacing(current,-Math.PI+0.05,1/60);
   assert.ok(next>current && next<current+0.1);
+});
+
+test('quarter turns expose thickness and hide the front at the side and back', () => {
+  assert.equal(bodyProjection(Math.PI / 2).width, 1);
+  assert.equal(bodyProjection(0, 28).depth, 28);
+  assert.equal(bodyProjection(0).width, 0);
+  assert.equal(frontVisibility(0), 0);
+  assert.equal(bodyProjection(-Math.PI / 2).back, true);
+  assert.equal(frontVisibility(-Math.PI / 2), 0);
+  const before = bodyProjection(-0.001);
+  const after = bodyProjection(0.001);
+  assert.ok(Math.abs(before.width - after.width) < 1e-9);
+  assert.ok(Math.abs(before.depth - after.depth) < 1e-9);
 });
 
 test('turn smoothing is independent of frame rate',()=> {
