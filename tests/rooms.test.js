@@ -91,14 +91,25 @@ test('bots count toward the six-player room limit',()=> {
   assert.equal(rooms.rooms.get(code).members.size+rooms.rooms.get(code).bots.length,6);
 });
 
-test('actions survive multiple input messages between server ticks',()=> {
+test('each input moves the player once and a later stop is not overwritten',()=> {
   const {rooms,host,code}=fixture();
   rooms.handle({id:'guest'},{type:'join',code});
   rooms.handle(host,{type:'start'});
-  rooms.handle(host,{type:'input',x:0,y:0,aim:0,throw:true,sequence:4});
+  const game=rooms.rooms.get(code).game;
+  game.phase='playing';
+  game.remaining=50;
+  rooms.handle(host,{type:'input',x:1,y:0,aim:0,throw:true,sequence:4});
   rooms.handle(host,{type:'input',x:0,y:0,aim:0,throw:false,sequence:5});
   const member=rooms.rooms.get(code).members.get(host.id);
-  assert.equal(member.player.input.throw,true);
+  const start=member.player.x;
+  rooms.tick(1/30);
+  assert.equal(member.player.inputSequence,4);
+  assert.ok(member.player.x>start);
+  const moved=member.player.x;
   rooms.tick(1/30);
   assert.equal(member.player.inputSequence,5);
+  assert.equal(member.player.x,moved);
+  rooms.tick(1/30);
+  assert.equal(member.player.inputSequence,5);
+  assert.equal(member.player.x,moved);
 });

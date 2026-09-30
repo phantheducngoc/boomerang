@@ -1,9 +1,10 @@
 import { randomInt } from 'node:crypto';
 import { createGame, createPlayer, stepGame } from '../shared/game.js';
-import { RULES, emptyInput } from '../shared/config.js';
+import { RULES } from '../shared/config.js';
 import { updateBots } from '../shared/bots.js';
 import { profile, input } from './validation.js';
 import { addBot, removeBot, seatCount } from './room-bots.js';
+import { pushInput, takeInput } from './player-input.js';
 
 export class RoomService {
   constructor(send) {
@@ -56,7 +57,7 @@ export class RoomService {
         if (seatCount(room) >= RULES.maxPlayers) throw new Error('This room is full (6 players).');
       }
       const details = profile(message);
-      room.members.set(client.id, { client, lastInput: Date.now(), pendingInputSequence: 0,
+      room.members.set(client.id, { client, lastInput: Date.now(), inputQueue: [],
         player: createPlayer(client.id, details.name, details.character) });
       client.room = room.code;
       this.lobby(room);
@@ -86,28 +87,17 @@ export class RoomService {
       const next = input(message);
       if (!next) return;
       const member = room.members.get(client.id);
-      const { sequence, ...nextInput } = next;
-      const previous = member.player.input;
-      member.player.input = { ...nextInput, throw: previous.throw || nextInput.throw, dash: previous.dash || nextInput.dash,
-        retrieve: previous.retrieve || nextInput.retrieve, strike: previous.strike || nextInput.strike,
-        range: previous.throw ? previous.range : nextInput.range };
-      member.pendingInputSequence = sequence;
-      member.lastInput = Date.now();
+      if (member) pushInput(member, next);
     }
   }
 
   tick(dt) {
     for (const room of this.rooms.values()) {
       if (!room.game) continue;
-      for (const member of room.members.values()) {
-        if (Date.now() - member.lastInput > 250) member.player.input = emptyInput();
-      }
+      for (const member of room.members.values()) takeInput(member);
       room.botTime += dt;
       updateBots(room.game, room.botTime);
       stepGame(room.game, dt);
-      for (const member of room.members.values()) {
-        member.player.inputSequence = member.pendingInputSequence;
-      }
       this.broadcast(room, { type: 'state', state: room.game });
     }
   }
