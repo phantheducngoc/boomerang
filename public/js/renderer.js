@@ -1,4 +1,5 @@
 import { drawGarden, drawAllCover } from './art/garden.js';
+import { GrassPatches } from './art/grass.js';
 import { drawCharacter } from './art/characters.js';
 import { drawStrike } from './art/strike.js';
 import { WeaponTrails } from './art/weapon-trail.js';
@@ -31,6 +32,7 @@ export class ArenaRenderer {
       canvas.height = WORLD.height;
     }
     this.positions = new Map();
+    this.grass = new GrassPatches();
     this.weaponTrails = new WeaponTrails();
     this.dashTrails = new DashTrails();
     this.kickImpacts = new KickImpacts();
@@ -45,7 +47,7 @@ export class ArenaRenderer {
     drawGarden(bg);
   }
 
-  reset() { this.positions.clear(); this.weaponTrails.reset(); this.dashTrails.reset(); this.kickImpacts.reset(); this.waterSplashes.reset(); this.particles = []; this.lastEvent = 0; }
+  reset() { this.positions.clear(); this.grass.reset(); this.weaponTrails.reset(); this.dashTrails.reset(); this.kickImpacts.reset(); this.waterSplashes.reset(); this.particles = []; this.lastEvent = 0; }
 
   render(state, time, localId, aim, range = null) {
     const ctx = this.ctx;
@@ -65,6 +67,8 @@ export class ArenaRenderer {
     }
     applyCamera(ctx, this.view);
     ctx.drawImage(this.background, -WATER_BLEED, -WATER_BLEED);
+    this.grass.update(state.phase === 'playing' ? state.players : [], time);
+    this.grass.drawShadows(ctx);
     drawAllCover(ctx,state.brokenObstacles);
     if (this.preview) {
       const sx=WORLD.width/1000, sy=WORLD.height/660;
@@ -78,8 +82,14 @@ export class ArenaRenderer {
     this.weaponTrails.draw(ctx, armed ? state.projectiles : [], time);
     if (state.phase !== 'playing') this.dashTrails.reset();
     this.dashTrails.draw(ctx, state.phase === 'playing' ? state.players : [], time);
-    const sorted = [...state.players].sort((a,b)=>a.y-b.y);
-    for (const player of sorted) {
+    // Interleave foliage and characters by their ground position so front leaves occlude bodies.
+    const sorted = [
+      ...state.players.map(player => ({ y: player.y, player })),
+      ...this.grass.stems.map(stem => ({ y: stem.y, stem }))
+    ].sort((a,b)=>a.y-b.y);
+    for (const item of sorted) {
+      if (item.stem) { this.grass.drawStem(ctx, item.stem, time); continue; }
+      const player = item.player;
       const previous = this.positions.get(player.id) || {x:player.x,y:player.y};
       // Start once per elimination on the render clock, including between network updates.
       // A living state clears the timestamp for the next round or respawn.
