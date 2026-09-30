@@ -31,27 +31,22 @@ function face(ctx, points, color) {
   ctx.fill();
 }
 
-function crate(ctx, x, groundY, size) {
-  const depth = size * .3;
-  const height = size * .7;
-  const topY = groundY - height;
-  ellipse(ctx, x + size * .58, groundY + 4, size * .68, size * .2, '#3d56703b');
-  face(ctx, [[x,topY],[x+depth,topY-depth],[x+size+depth,topY-depth],[x+size,topY]], '#bf8057');
-  face(ctx, [[x+size,topY],[x+size+depth,topY-depth],
-    [x+size+depth,groundY-depth],[x+size,groundY]], '#704353');
-  face(ctx, [[x,topY],[x+size,topY],[x+size,groundY],[x,groundY]], '#8d5260');
-  ctx.strokeStyle = '#603946';
-  ctx.lineWidth = 3;
-  ctx.strokeRect(x + 2, topY + 2, size - 4, height - 4);
-  line(ctx, [[x+5,topY+5],[x+size-5,groundY-5]], '#bd7658', 4);
-  line(ctx, [[x+size*.22,topY-depth*.42],[x+size*.82,topY-depth*.42]], '#df9c68', 3);
-}
-
 function crates(ctx, box) {
   const { x, y, w, h } = box;
-  const size = Math.min(42, h * .82);
-  const count = Math.max(1, Math.floor(w / 48));
-  for (let i = count - 1; i >= 0; i--) crate(ctx, x + 3 + i * 44, y + h, size);
+  // Use the obstacle's full bounds rather than a smaller fixed-size decoration.
+  const bevel = Math.min(w, h) * 0.22;
+  const frontRight = x + w - bevel;
+  const frontTop = y + bevel;
+  const bottom = y + h;
+  ellipse(ctx, x + w / 2, bottom + 4, w * 0.53, h * 0.15, '#3d56703b');
+  face(ctx, [[x,frontTop],[x+bevel,y],[x+w,y],[frontRight,frontTop]], '#bf8057');
+  face(ctx, [[frontRight,frontTop],[x+w,y],[x+w,bottom-bevel],[frontRight,bottom]], '#704353');
+  face(ctx, [[x,frontTop],[frontRight,frontTop],[frontRight,bottom],[x,bottom]], '#8d5260');
+  line(ctx, [[x+5,frontTop+5],[frontRight-5,bottom-5]], '#bd7658', 4);
+  line(ctx, [[x+w*.22,y+bevel*.45],[x+w*.73,y+bevel*.45]], '#df9c68', 3);
+  // Shared face edges meet at the same corners, without a detached inset border.
+  line(ctx, [[x,frontTop],[frontRight,frontTop],[frontRight,bottom],[x,bottom],[x,frontTop]], '#603946', 2);
+  line(ctx, [[frontRight,frontTop],[x+w,y],[x+w,bottom-bevel],[frontRight,bottom]], '#603946', 2);
 }
 
 function crackedCrate(ctx, box) {
