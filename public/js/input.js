@@ -1,4 +1,5 @@
 import { GamepadInput } from './gamepad.js';
+import { TouchControls } from './touch-controls.js';
 import { screenToWorld } from './camera.js';
 import { emptyInput, RULES } from '/shared/config.js';
 
@@ -9,6 +10,7 @@ export class InputController {
     this.pointer = {x:700,y:330};
     this.active = false;
     this.gamepad = new GamepadInput();
+    this.touch = new TouchControls();
     this.source = 'keyboard';
     this.focused = document.hasFocus();
     window.addEventListener('focus',()=> { this.focused=true; });
@@ -34,7 +36,7 @@ export class InputController {
     canvas.addEventListener('pointercancel',()=>this.reset());
     canvas.addEventListener('lostpointercapture',()=> { this.chargeStart=null; });
     canvas.addEventListener('pointerdown',event=> {
-      if (!this.canAct()) return;
+      if (!this.canAct() || this.touch.enabled) return;
       this.point(event);
       canvas.focus({preventScroll:true});
       if (event.button===2) { this.strike=true; return; }
@@ -61,10 +63,12 @@ export class InputController {
 
   previewRange() {
     if (this.source==='gamepad') return this.gamepad.chargeStart!==null?this.gamepad.chargedRange():null;
+    if (this.source==='touch') return this.touch.input.chargeStart!==null?this.touch.input.chargedRange():null;
     return this.chargeStart!==null?this.chargedRange():null;
   }
 
   point(event) {
+    if (this.touch.enabled) return;
     this.source='keyboard';
     const box=this.canvas.getBoundingClientRect();
     const x=(event.clientX-box.left)/box.width*this.canvas.width;
@@ -75,6 +79,7 @@ export class InputController {
 
   reset() {
     this.gamepad.reset();
+    this.touch.reset();
     this.keys.clear();
     this.throw=false;
     this.dash=false;
@@ -88,8 +93,10 @@ export class InputController {
     if (this.pointerScreen) this.pointer = screenToWorld(this.pointerScreen.x, this.pointerScreen.y, this.view);
     if (!this.canAct() || !player?.alive) { this.reset(); return emptyInput(); }
     const pad=this.gamepad.read();
+    const touch=this.touch.read();
     if (pad?.activity) this.source='gamepad';
-    if (!pad) this.source='keyboard';
+    else if (touch?.activity) this.source='touch';
+    else if (!pad && !touch) this.source='keyboard';
     const has=(...keys)=>keys.some(key=>this.keys.has(key));
     if (this.dash) { this.chargeStart=null; this.throw=false; }
     const input={x:Number(has('KeyD','ArrowRight'))-Number(has('KeyA','ArrowLeft')),
@@ -104,6 +111,12 @@ export class InputController {
       this.chargeStart=null;
       return { x:pad.x, y:pad.y, aim:pad.aim ?? player.aim ?? 0,
         throw:pad.throw, charging:pad.charging===true, recall:pad.recall===true, dash:pad.dash, strike:pad.strike, retrieve:false, range:pad.range };
+    }
+    if (this.source==='touch' && touch) {
+      this.chargeStart=null;
+      const moving=touch.x||touch.y;
+      return { x:touch.x, y:touch.y, aim:touch.aim ?? (moving?Math.atan2(touch.y,touch.x):player.aim ?? 0),
+        throw:touch.throw, charging:touch.charging===true, recall:touch.recall===true, dash:touch.dash, strike:touch.strike, retrieve:false, range:touch.range };
     }
     return input;
   }
