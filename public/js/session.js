@@ -6,6 +6,7 @@ import { ArenaRenderer } from './renderer.js';
 import { InputController } from './input.js';
 import { SnapshotBuffer } from './snapshot-buffer.js';
 import { localBotMatch } from './local-bot-match.js';
+import { NETWORK_TICK_SECONDS } from '/shared/network-timing.js';
 import { $, showScreen, renderHUD } from './ui.js';
 
 export class GameSession {
@@ -87,7 +88,10 @@ export class GameSession {
     this.last=timestamp;
     if (this.state && this.mode) {
       this.accumulator+=elapsed;
-      while (this.accumulator>=1/30) {
+      const online = this.mode === 'online' && !this.localBots;
+      const inputStep = online ? NETWORK_TICK_SECONDS : 1 / 30;
+      // A stalled browser sends the newest controls once, not a backlog of stale inputs.
+      while (this.accumulator>=inputStep - 1e-6) {
         const player=this.state.players.find(item=>item.id===this.id);
         if (this.state.phase!=='playing') this.input.reset();
         const input=this.input.read(player);
@@ -102,7 +106,8 @@ export class GameSession {
           updateBots(this.state,timestamp/1000);
           stepGame(this.state,1/30);
         } else this.connection.send({type:'input',...input});
-        this.accumulator-=1/30;
+        this.accumulator=Math.max(0,this.accumulator-inputStep);
+        if (online) { this.accumulator %= inputStep; break; }
       }
       let renderState=this.state;
       if (this.mode==='online' && !this.localBots) {

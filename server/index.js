@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { WebSocketServer } from 'ws';
 import { serve } from './http.js';
 import { RoomService } from './rooms.js';
+import { NETWORK_TICK_SECONDS } from '../shared/network-timing.js';
 
 const server = createServer(serve);
 const sockets = new WebSocketServer({ noServer: true, maxPayload: 2048 });
@@ -50,7 +51,7 @@ sockets.on('connection', socket => {
   socket.on('close', () => { clearInterval(heartbeat); rooms.leave(client); });
 });
 
-const timer = setInterval(() => rooms.tick(1 / 30), 1000 / 30);
+const timer = setInterval(() => rooms.tick(NETWORK_TICK_SECONDS), NETWORK_TICK_SECONDS * 1000);
 const port = Number(process.env.PORT || 3000);
 server.listen(port, '0.0.0.0', () => console.log(`Boomerang Arena → http://localhost:${port}`));
 function shutdown() {

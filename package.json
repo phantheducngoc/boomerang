@@ -11,7 +11,7 @@
     "start": "node server/index.js",
     "test": "node --test tests/*.test.js",
     "check": "node scripts/check.js",
-    "test:browser": "node tests/browser.js && node tests/attack-browser.js && node tests/gamepad-browser.js"
+    "test:browser": "node tests/browser.js && node tests/attack-browser.js && node tests/gamepad-browser.js && node tests/multiplayer-timing-browser.js"
   },
   "dependencies": {
     "ws": "^8.18.0"

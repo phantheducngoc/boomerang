@@ -96,7 +96,9 @@ export class ArenaRenderer {
       if (player.alive) previous.defeatAt = null;
       else previous.defeatAt ??= time;
       const snap = Math.hypot(previous.x-player.x,previous.y-player.y)>150 || state.phase==='countdown';
-      const follow = snap || player.strikeLungeDistance > 0 ? 1 : player.clientInterpolated ? 1 : .45;
+      // Local positions are already authoritative; easing them adds input lag.
+      const follow = snap || player.id === localId || player.strikeLungeDistance > 0
+        || player.clientInterpolated ? 1 : .45;
       previous.x += (player.x-previous.x)*follow;
       previous.y += (player.y-previous.y)*follow;
       this.positions.set(player.id,previous);

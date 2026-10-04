@@ -1,3 +1,5 @@
+import { snapshotDelay } from '../../shared/network-timing.js';
+
 export class RoomConnection {
   constructor(onMessage, onDisconnect) {
     this.onMessage=onMessage;
@@ -56,7 +58,7 @@ export class RoomConnection {
   }
 
   interpolationDelay() {
-    return Math.min(160,Math.max(67,67+this.jitter*2));
+    return snapshotDelay(this.jitter);
   }
 
   close() {

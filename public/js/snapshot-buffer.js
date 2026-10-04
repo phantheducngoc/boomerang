@@ -1,3 +1,5 @@
+import { snapshotDelay } from '../../shared/network-timing.js';
+
 function mix(from, to, amount) {
   return from + (to - from) * amount;
 }
@@ -51,7 +53,7 @@ export function interpolateState(from, to, amount) {
 }
 
 export class SnapshotBuffer {
-  constructor(delay = 90, limit = 12) {
+  constructor(delay = snapshotDelay(), limit = 12) {
     this.delay = delay;
     this.limit = limit;
     this.snapshots = [];
